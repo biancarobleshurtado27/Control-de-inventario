@@ -3,12 +3,14 @@ import { pool } from './db.js';
 
 import { materialesRouter } from './materiales.js';
 import { movimientosRouter } from './movimientos.js';
+import { consultasRouter } from './consultas.js';
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '100kb' }));
 
 app.use('/api/materiales', materialesRouter);
 app.use('/api/movimientos', movimientosRouter);
+app.use('/api', consultasRouter);
 app.get('/api/salud', async (req, res) => {
   await pool.query('SELECT 1');
   res.json({ estado: 'ok', baseDeDatos: 'conectada' });
@@ -54,5 +56,6 @@ async function shutdown() {
 }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+
 
 

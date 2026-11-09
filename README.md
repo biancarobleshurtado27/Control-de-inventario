@@ -23,3 +23,14 @@ POST /api/materiales recibe codigo, nombre, categoria, subcategoria, unidad, dem
 
 ## Movimientos
 GET /api/movimientos lista los últimos 200 registros. POST /api/movimientos recibe tipo, material_id, usuario_id, cantidad, documento, motivo, lote, origen_id y destino_id. ENTRADA requiere orden_detalle_id aprobado y destino coincidente; SALIDA requiere origen; TRASLADO requiere origen y destino distintos; AJUSTE requiere solo uno de ellos. El lote se conserva al salir o trasladar. No se permiten saldos negativos por lote ni recepciones por encima de la cantidad de la OC. Los movimientos se serializan por material dentro de transacciones. Al recibir un traslado, la ubicación hereda inicialmente los límites de stock del material, editables en futuras mejoras.
+
+## Duplicados y trazabilidad
+- GET /api/ordenes/posibles-duplicados: compara órdenes no canceladas del mismo proveedor y material. Acumula las líneas del mismo material por OC, compara pares una sola vez y aplica los parámetros de configuracion: hasta 3 días y diferencia de hasta 5 % respecto de la cantidad mayor. Los resultados son sospechas para revisión, no duplicados confirmados.
+- GET /api/materiales/:id/trazabilidad: historial con usuario, origen, destino, documento, lote y OC de procedencia. Los saldos iniciales no tienen OC: se identifican por su documento de ajuste.
+- Los lotes conservan su vínculo con la OC al trasladarse o salir.
+
+## Pruebas funcionales
+Con .env configurado y la base inicial cargada:
+- node tests/movimientos.mjs
+- node tests/recepcion-consultas.mjs
+Estas pruebas crean datos temporales y los eliminan al terminar. La segunda verifica los pares OC-1041/OC-1042 y OC-1050/OC-1053 de los datos semilla, recepción parcial y completa, rechazo de exceso y trazabilidad después de un traslado.
