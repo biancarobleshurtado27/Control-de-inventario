@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { pool } from './db.js';
 
@@ -42,6 +43,7 @@ app.get('/api/alertas/reorden', async (req, res) => {
     ORDER BY a.material_id,a.ubicacion_id`);
   res.json(rows);
 });
+app.use(express.static(fileURLToPath(new URL('../public', import.meta.url))));
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
 app.use((error, req, res, next) => {
   if (error.type === 'entity.parse.failed') return res.status(400).json({ error: 'El JSON enviado no es válido.' });
@@ -56,6 +58,7 @@ async function shutdown() {
 }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+
 
 
 

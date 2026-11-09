@@ -37,3 +37,10 @@ consultasRouter.get('/materiales/:id/trazabilidad',async(req,res)=>{
  WHERE mv.material_id=? ORDER BY mv.fecha,mv.id`,[id]);
  res.json({material:material[0],movimientos});
 });
+
+consultasRouter.get('/usuarios',async(req,res)=>{
+ const [rows]=await pool.query('SELECT id,nombre FROM usuarios ORDER BY nombre');res.json(rows);
+});
+consultasRouter.get('/ordenes',async(req,res)=>{
+ const [rows]=await pool.query(`SELECT d.id,o.numero,o.fecha,o.estado,d.material_id,m.nombre AS material,d.cantidad,d.precio_unitario,o.ubicacion_id,u.nombre AS ubicacion FROM ordenes o JOIN orden_detalles d ON d.orden_id=o.id JOIN materiales m ON m.id=d.material_id JOIN ubicaciones u ON u.id=o.ubicacion_id ORDER BY o.fecha DESC,o.id DESC`);res.json(rows);
+});

@@ -34,3 +34,7 @@ Con .env configurado y la base inicial cargada:
 - node tests/movimientos.mjs
 - node tests/recepcion-consultas.mjs
 Estas pruebas crean datos temporales y los eliminan al terminar. La segunda verifica los pares OC-1041/OC-1042 y OC-1050/OC-1053 de los datos semilla, recepción parcial y completa, rechazo de exceso y trazabilidad después de un traslado.
+
+## Interfaz web
+Al iniciar el servidor, abrir http://localhost:3000/. Incluye resumen de existencias, alertas, búsqueda, catálogo y registro de materiales, registro de movimientos, posibles duplicados y trazabilidad. La interfaz usa la misma API y no requiere instalación adicional. Para ENTRADA se selecciona una línea de OC existente aprobada; la creación de nuevas OC sigue pendiente. La selección de usuario identifica al responsable, pero todavía no constituye autenticación.
+Prueba de entrega de archivos y consultas: node tests/frontend-smoke.mjs. La revisión visual manual en navegador está pendiente.
