@@ -50,5 +50,10 @@ Prueba del flujo completo: node tests/ordenes.mjs (datos temporales con limpieza
 
 
 ## Verificación de pantalla de órdenes
-Revisada en Chrome: formulario de número, fecha, proveedor, destino, material, cantidad y precio; listado de las siete OC semilla; selector de pendientes y aprobación deshabilitada cuando no hay pendientes. La creación y recepción completas se verifican mediante tests/ordenes.mjs. La vista móvil y el envío de este formulario desde navegador siguen pendientes.
+Revisada en Chrome: formulario de número, fecha, proveedor, destino, material, cantidad y precio; listado de las siete OC semilla; selector de pendientes y aprobación deshabilitada cuando no hay pendientes. La creación y recepción completas se verifican mediante tests/ordenes.mjs. La creación y aprobación desde navegador y la distribución móvil se verificaron posteriormente; ver Validación adicional de interfaz.
 Las copias de archivos cuyo nombre comienza con .env también están excluidas de Git. Solo .env.example se publica y no contiene contraseñas.
+
+## Validación adicional de interfaz
+Se creó UI-OC-1109 con dos unidades de cemento desde el formulario y se aprobó desde el selector. Ambos mensajes de éxito se verificaron en pantalla y la OC temporal se eliminó después, sin afectar órdenes originales.
+Se comprobó la distribución de Órdenes en un viewport de 390 × 844: formulario de una columna, campos de unos 298 px dentro del ancho visible y navegación horizontal. No se detectó desbordamiento horizontal del documento. La captura de imagen móvil no estuvo disponible; esta comprobación fue de dimensiones y estilos del navegador, no una inspección visual completa en un teléfono. Se restauró el viewport normal.
+
