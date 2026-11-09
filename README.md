@@ -20,3 +20,6 @@ No publicar .env ni credenciales. Los datos son ficticios, tomados del enunciado
 
 ## Registrar material
 POST /api/materiales recibe codigo, nombre, categoria, subcategoria, unidad, demanda_promedio, demanda_maxima, tiempo_entrega, ubicacion_id, stock_minimo y stock_maximo. Devuelve 201; datos inválidos 400; código repetido 409. El stock inicial es cero y solo cambia mediante movimientos. El material y su política se crean juntos mediante una transacción.
+
+## Movimientos
+GET /api/movimientos lista los últimos 200 registros. POST /api/movimientos recibe tipo, material_id, usuario_id, cantidad, documento, motivo, lote, origen_id y destino_id. ENTRADA requiere orden_detalle_id aprobado y destino coincidente; SALIDA requiere origen; TRASLADO requiere origen y destino distintos; AJUSTE requiere solo uno de ellos. El lote se conserva al salir o trasladar. No se permiten saldos negativos por lote ni recepciones por encima de la cantidad de la OC. Los movimientos se serializan por material dentro de transacciones. Al recibir un traslado, la ubicación hereda inicialmente los límites de stock del material, editables en futuras mejoras.
