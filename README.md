@@ -15,7 +15,7 @@
 - GET /api/alertas/reorden: materiales por debajo del PR.
 
 Con los datos iniciales, stock devuelve 190, 850, 2800 y 14. Alertas devuelve block y arena.
-La API se escucha únicamente en la computadora local. Todavía no incluye autenticación, escritura de movimientos ni frontend.
+La API y la interfaz se escuchan únicamente en la computadora local. Incluye escritura de materiales, movimientos y órdenes; no incluye autenticación.
 No publicar .env ni credenciales. Los datos son ficticios, tomados del enunciado del quiz; mínimos y máximos son supuestos documentados en seed.sql.
 
 ## Registrar material
@@ -36,8 +36,8 @@ Con .env configurado y la base inicial cargada:
 Estas pruebas crean datos temporales y los eliminan al terminar. La segunda verifica los pares OC-1041/OC-1042 y OC-1050/OC-1053 de los datos semilla, recepción parcial y completa, rechazo de exceso y trazabilidad después de un traslado.
 
 ## Interfaz web
-Al iniciar el servidor, abrir http://localhost:3000/. Incluye resumen de existencias, alertas, búsqueda, catálogo y registro de materiales, registro de movimientos, posibles duplicados y trazabilidad. La interfaz usa la misma API y no requiere instalación adicional. Para ENTRADA se selecciona una línea de OC existente aprobada; la creación de nuevas OC sigue pendiente. La selección de usuario identifica al responsable, pero todavía no constituye autenticación.
-Prueba de entrega de archivos y consultas: node tests/frontend-smoke.mjs. La revisión visual manual en navegador está pendiente.
+Al iniciar el servidor, abrir http://localhost:3000/. Incluye resumen de existencias, alertas, búsqueda, catálogo y registro de materiales, registro de movimientos, posibles duplicados y trazabilidad. La interfaz usa la misma API y no requiere instalación adicional. Para ENTRADA se selecciona una línea de OC existente aprobada; las nuevas OC se crean desde Órdenes de compra. La selección de usuario identifica al responsable, pero todavía no constituye autenticación.
+Prueba de entrega de archivos y consultas: node tests/frontend-smoke.mjs. La revisión inicial en Chrome está documentada al final de este archivo; queda pendiente la vista móvil.
 
 ## Revisión de interfaz en navegador
 Revisado en Chrome, ventana de aproximadamente 860 px de ancho: dashboard, catálogo, formulario de materiales, formulario de movimientos, trazabilidad y posibles duplicados. Las tablas anchas disponen de desplazamiento horizontal.
@@ -47,3 +47,8 @@ Pendiente ampliar las pruebas manuales a todos los tipos de movimiento y a panta
 ## Órdenes de compra
 La pantalla Órdenes de compra permite crear una OC de una línea y aprobar órdenes pendientes. La API POST /api/ordenes también admite hasta 100 materiales distintos en detalles. GET /api/proveedores alimenta el selector. POST /api/ordenes/:id/aprobar cambia únicamente órdenes pendientes a aprobadas. Esta aprobación es manual y no implementa roles ni la matriz monetaria (extra opcional). La recepción exige estado aprobado. El estado no cambia automáticamente a RECIBIDA; el límite acumulado de recepción impide recibir de más.
 Prueba del flujo completo: node tests/ordenes.mjs (datos temporales con limpieza automática).
+
+
+## Verificación de pantalla de órdenes
+Revisada en Chrome: formulario de número, fecha, proveedor, destino, material, cantidad y precio; listado de las siete OC semilla; selector de pendientes y aprobación deshabilitada cuando no hay pendientes. La creación y recepción completas se verifican mediante tests/ordenes.mjs. La vista móvil y el envío de este formulario desde navegador siguen pendientes.
+Las copias de archivos cuyo nombre comienza con .env también están excluidas de Git. Solo .env.example se publica y no contiene contraseñas.
