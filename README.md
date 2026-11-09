@@ -66,3 +66,9 @@ Alcance: prototipo académico local, sin autenticación ni autorización por rol
 
 ## Informe
 El borrador de nueve páginas está en docs/Informe_Gestion_Inventarios_Borrador.pdf. Incluye A1-A5, circuito de compra, modelo entidad-relación, descripción del sistema, pruebas, conclusiones y fuentes. Falta confirmar el nombre completo de la autora. docs/Informe_contenido.md conserva el texto base; el PDF incluye además los diagramas gráficos.
+
+## Preparar la entrega
+- docs/Informe_Gestion_Inventarios_Borrador.pdf: informe de nueve páginas; pendiente nombre completo y revisión de autora.
+- docs/Guion_video_demo.md: guion cronometrado para grabar un video de menos de cinco minutos. No es un video grabado.
+- docs/Guia_exposicion_y_codigo.md: estructura para diez minutos y preguntas para practicar la explicación. No es un archivo de diapositivas.
+- Video y exposición: pendientes de realizar. Antes de grabar, cerrar archivos .env y usar números de OC y lotes nuevos. Los movimientos de una demo real quedan en la base y no deben confundirse con el estado inicial del seed.
