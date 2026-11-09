@@ -38,3 +38,8 @@ Estas pruebas crean datos temporales y los eliminan al terminar. La segunda veri
 ## Interfaz web
 Al iniciar el servidor, abrir http://localhost:3000/. Incluye resumen de existencias, alertas, búsqueda, catálogo y registro de materiales, registro de movimientos, posibles duplicados y trazabilidad. La interfaz usa la misma API y no requiere instalación adicional. Para ENTRADA se selecciona una línea de OC existente aprobada; la creación de nuevas OC sigue pendiente. La selección de usuario identifica al responsable, pero todavía no constituye autenticación.
 Prueba de entrega de archivos y consultas: node tests/frontend-smoke.mjs. La revisión visual manual en navegador está pendiente.
+
+## Revisión de interfaz en navegador
+Revisado en Chrome, ventana de aproximadamente 860 px de ancho: dashboard, catálogo, formulario de materiales, formulario de movimientos, trazabilidad y posibles duplicados. Las tablas anchas disponen de desplazamiento horizontal.
+Se creó un material temporal desde el formulario y se comprobó el mensaje de guardado y su aparición en el catálogo. Se comprobó el rechazo de un ajuste sin ubicación y luego el guardado de un ajuste de cinco unidades con destino válido. Se consultó el historial de cemento y se visualizaron los dos pares esperados de compras sospechosas. Los datos temporales se eliminaron al finalizar.
+Pendiente ampliar las pruebas manuales a todos los tipos de movimiento y a pantalla móvil.
