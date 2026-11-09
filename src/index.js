@@ -1,10 +1,12 @@
 import express from 'express';
 import { pool } from './db.js';
 
+import { materialesRouter } from './materiales.js';
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '100kb' }));
 
+app.use('/api/materiales', materialesRouter);
 app.get('/api/salud', async (req, res) => {
   await pool.query('SELECT 1');
   res.json({ estado: 'ok', baseDeDatos: 'conectada' });
@@ -38,6 +40,7 @@ app.get('/api/alertas/reorden', async (req, res) => {
 });
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
 app.use((error, req, res, next) => {
+  if (error.type === 'entity.parse.failed') return res.status(400).json({ error: 'El JSON enviado no es válido.' });
   console.error('Error de solicitud:', error.code || error.name);
   res.status(500).json({ error: 'No se pudo completar la consulta. Revisa la conexión y la configuración de MySQL.' });
 });
@@ -49,3 +52,4 @@ async function shutdown() {
 }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+

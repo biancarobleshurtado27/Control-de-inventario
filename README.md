@@ -17,3 +17,6 @@
 Con los datos iniciales, stock devuelve 190, 850, 2800 y 14. Alertas devuelve block y arena.
 La API se escucha únicamente en la computadora local. Todavía no incluye autenticación, escritura de movimientos ni frontend.
 No publicar .env ni credenciales. Los datos son ficticios, tomados del enunciado del quiz; mínimos y máximos son supuestos documentados en seed.sql.
+
+## Registrar material
+POST /api/materiales recibe codigo, nombre, categoria, subcategoria, unidad, demanda_promedio, demanda_maxima, tiempo_entrega, ubicacion_id, stock_minimo y stock_maximo. Devuelve 201; datos inválidos 400; código repetido 409. El stock inicial es cero y solo cambia mediante movimientos. El material y su política se crean juntos mediante una transacción.
