@@ -63,3 +63,6 @@ Las cinco suites funcionales fueron ejecutadas: entrega del frontend, movimiento
 Se verificó que .env, .git/config, package.json y los scripts SQL no se publican por HTTP. Se añadieron cabeceras para limitar recursos al mismo origen, impedir inclusión en marcos y evitar detección de tipos MIME. JSON mal formado responde 400 y solicitudes mayores a 100 KB responden 413.
 En Git solo se publica .env.example; .env y sus copias están ignorados. Las consultas que reciben datos usan parámetros y la interfaz inserta los textos con textContent.
 Alcance: prototipo académico local, sin autenticación ni autorización por roles. Elegir un usuario en el formulario no verifica su identidad. No se considera listo para exposición pública sin implementar esos controles. La matriz monetaria de aprobación es un extra no implementado.
+
+## Informe
+El borrador de nueve páginas está en docs/Informe_Gestion_Inventarios_Borrador.pdf. Incluye A1-A5, circuito de compra, modelo entidad-relación, descripción del sistema, pruebas, conclusiones y fuentes. Falta confirmar el nombre completo de la autora. docs/Informe_contenido.md conserva el texto base; el PDF incluye además los diagramas gráficos.
