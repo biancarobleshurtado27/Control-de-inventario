@@ -8,6 +8,12 @@ import { consultasRouter } from './consultas.js';
 import { ordenesRouter } from './ordenes.js';
 const app = express();
 app.disable('x-powered-by');
+app.use((req,res,next)=>{
+  res.setHeader('X-Content-Type-Options','nosniff');
+  res.setHeader('Referrer-Policy','no-referrer');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
+  next();
+});
 app.use(express.json({ limit: '100kb' }));
 
 app.use('/api/materiales', materialesRouter);
@@ -48,6 +54,7 @@ app.get('/api/alertas/reorden', async (req, res) => {
 app.use(express.static(fileURLToPath(new URL('../public', import.meta.url))));
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
 app.use((error, req, res, next) => {
+  if (error.type === 'entity.too.large') return res.status(413).json({ error: 'La solicitud supera el máximo de 100 KB.' });
   if (error.type === 'entity.parse.failed') return res.status(400).json({ error: 'El JSON enviado no es válido.' });
   console.error('Error de solicitud:', error.code || error.name);
   res.status(500).json({ error: 'No se pudo completar la consulta. Revisa la conexión y la configuración de MySQL.' });
@@ -60,6 +67,7 @@ async function shutdown() {
 }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+
 
 
 

@@ -57,3 +57,9 @@ Las copias de archivos cuyo nombre comienza con .env también están excluidas d
 Se creó UI-OC-1109 con dos unidades de cemento desde el formulario y se aprobó desde el selector. Ambos mensajes de éxito se verificaron en pantalla y la OC temporal se eliminó después, sin afectar órdenes originales.
 Se comprobó la distribución de Órdenes en un viewport de 390 × 844: formulario de una columna, campos de unos 298 px dentro del ancho visible y navegación horizontal. No se detectó desbordamiento horizontal del documento. La captura de imagen móvil no estuvo disponible; esta comprobación fue de dimensiones y estilos del navegador, no una inspección visual completa en un teléfono. Se restauró el viewport normal.
 
+
+## Revisión integral y seguridad básica
+Las cinco suites funcionales fueron ejecutadas: entrega del frontend, movimientos y concurrencia, recepción y trazabilidad, órdenes y seguridad básica. Para repetirlas: npm test (requiere MySQL y .env configurados). Los datos temporales se eliminan al finalizar.
+Se verificó que .env, .git/config, package.json y los scripts SQL no se publican por HTTP. Se añadieron cabeceras para limitar recursos al mismo origen, impedir inclusión en marcos y evitar detección de tipos MIME. JSON mal formado responde 400 y solicitudes mayores a 100 KB responden 413.
+En Git solo se publica .env.example; .env y sus copias están ignorados. Las consultas que reciben datos usan parámetros y la interfaz inserta los textos con textContent.
+Alcance: prototipo académico local, sin autenticación ni autorización por roles. Elegir un usuario en el formulario no verifica su identidad. No se considera listo para exposición pública sin implementar esos controles. La matriz monetaria de aprobación es un extra no implementado.
