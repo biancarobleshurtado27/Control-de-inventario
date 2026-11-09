@@ -43,3 +43,7 @@ Prueba de entrega de archivos y consultas: node tests/frontend-smoke.mjs. La rev
 Revisado en Chrome, ventana de aproximadamente 860 px de ancho: dashboard, catálogo, formulario de materiales, formulario de movimientos, trazabilidad y posibles duplicados. Las tablas anchas disponen de desplazamiento horizontal.
 Se creó un material temporal desde el formulario y se comprobó el mensaje de guardado y su aparición en el catálogo. Se comprobó el rechazo de un ajuste sin ubicación y luego el guardado de un ajuste de cinco unidades con destino válido. Se consultó el historial de cemento y se visualizaron los dos pares esperados de compras sospechosas. Los datos temporales se eliminaron al finalizar.
 Pendiente ampliar las pruebas manuales a todos los tipos de movimiento y a pantalla móvil.
+
+## Órdenes de compra
+La pantalla Órdenes de compra permite crear una OC de una línea y aprobar órdenes pendientes. La API POST /api/ordenes también admite hasta 100 materiales distintos en detalles. GET /api/proveedores alimenta el selector. POST /api/ordenes/:id/aprobar cambia únicamente órdenes pendientes a aprobadas. Esta aprobación es manual y no implementa roles ni la matriz monetaria (extra opcional). La recepción exige estado aprobado. El estado no cambia automáticamente a RECIBIDA; el límite acumulado de recepción impide recibir de más.
+Prueba del flujo completo: node tests/ordenes.mjs (datos temporales con limpieza automática).
