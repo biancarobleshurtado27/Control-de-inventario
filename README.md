@@ -1,4 +1,4 @@
-﻿# Materiales del Valle · Control de inventario
+# Materiales del Valle · Control de inventario
 
 Prototipo académico para Constructora Del Valle S.A., opción 2 del Quiz de Gestión de Inventarios. Incluye una interfaz web y una API REST con Node.js, Express y MySQL.
 
@@ -8,14 +8,14 @@ Prototipo académico para Constructora Del Valle S.A., opción 2 del Quiz de Ges
 - npm y una cuenta MySQL con acceso a la base del proyecto.
 
 ## Instalación y ejecución
-1. En una base nueva, ejecutar `db/schema.sql` y después `db/seed.sql`, una sola vez. No repetirlos sobre datos de trabajo.
+1. En una base nueva, ejecutar `backend/db/schema.sql` y después `backend/db/seed.sql`, una sola vez. No repetirlos sobre datos de trabajo.
 2. Desde la raíz del proyecto, ejecutar `npm ci`.
-3. Copiar `.env.example` a `.env` y completar los datos de conexión localmente. No publicar contraseñas.
+3. Copiar `backend/.env.example` a `backend/.env` y completar los datos de conexión localmente. No publicar contraseñas.
 4. Ejecutar `npm start`. Para desarrollo con reinicio automático: `npm run dev`.
 5. Abrir la dirección indicada en la terminal. El valor predeterminado es `http://localhost:3000`; si `PORT=3002`, abrir `http://localhost:3002`.
 6. Abrir `/api/salud`: debe responder `estado: ok` y `baseDeDatos: conectada`.
 
-Frontend y backend comparten el mismo servidor: no hay que iniciar dos proyectos. `public/` contiene la interfaz y `src/` contiene la API. El servidor escucha solamente en la computadora local.
+Frontend y backend comparten el mismo servidor: no hay que iniciar dos proyectos. `frontend/` contiene la interfaz y `backend/src/` contiene la API. El servidor escucha solamente en la computadora local.
 
 ## Configuración
 | Variable | Uso |
@@ -97,7 +97,7 @@ Se probaron formularios en navegador antes del rediseño. La distribución de ó
 
 ## Seguridad y límites
 - Consultas con parámetros y validaciones de entrada.
-- Solo public/ se sirve por HTTP. No se sirven .env, scripts SQL ni .git.
+- Solo frontend/ se sirve por HTTP. No se sirven .env, scripts SQL ni .git.
 - Cabeceras para recursos del mismo origen, impedir marcos y evitar detección de tipos MIME.
 - Prototipo local sin autenticación ni permisos por rol. Seleccionar usuario no verifica identidad.
 - La aprobación manual no aplica la matriz monetaria A1, que es un extra opcional.
@@ -115,22 +115,41 @@ El informe usa el enunciado Trabajo_Gestion_de_Inventarios_Quiz_2.pdf como fuent
 ## Identidad visual
 Materiales del Valle utiliza arena, marfil, terracota y oliva, encabezados serif y navegación numerada. Los estados incluyen texto, además de color. Los formularios se adaptan al ancho disponible y cada sección vuelve al inicio al abrirse.
 
-## Organización del backend
+## Organización del proyecto
 ```text
-src/
-  index.js                   Servidor, configuración y manejo de errores
-  db.js                      Pool de conexión MySQL
-  routes/
-    materiales.routes.js     Direcciones del catálogo
-    movimientos.routes.js    Direcciones de movimientos
-    ordenes.routes.js        Direcciones de órdenes y proveedores
-    consultas.routes.js      Direcciones de duplicados y trazabilidad
-    sistema.routes.js        Salud, stock, alertas y consultas generales
-  controllers/
-    materiales.controller.js
-    movimientos.controller.js
-    ordenes.controller.js
-    consultas.controller.js
-    sistema.controller.js
+backend/
+  .env.example             Ejemplo público sin contraseña
+  .env                     Configuración local ignorada por Git
+  db/                      Creación SQL y datos semilla
+  src/
+    index.js               Servidor y manejo de errores
+    db.js                  Conexión MySQL
+    routes/                Rutas HTTP de la API
+    controllers/           Validaciones, consultas y respuestas
+  tests/                   Pruebas del servidor y entrega del frontend
+frontend/
+  index.html               Estructura HTML de las seis pantallas
+  styles/styles.css        Identidad visual y adaptación de tamaños
+  src/
+    app.js                 Inicio y actualización de datos
+    components/ui.js       Tablas, selectores y mensajes reutilizables
+    components/forms.js    Envío común de formularios
+    services/api.js        Solicitudes HTTP a /api
+    routes/router.js       Navegación por hash y sección activa
+    pages/                 Lógica de cada pantalla
+      resumen.js
+      materiales.js
+      movimientos.js
+      ordenes.js
+      duplicados.js
+      trazabilidad.js
+package.json               Comandos y dependencias compartidas
+package-lock.json          Versiones reproducibles
+README.md
 ```
-Las rutas asocian método y dirección con una función. Los controladores validan la solicitud, realizan las consultas y transacciones y devuelven la respuesta. db.js centraliza la conexión. Esta separación conserva las direcciones utilizadas por el frontend. No hay una capa de modelos ORM: el proyecto utiliza SQL con parámetros mediante mysql2.
+
+Ejecutar npm ci, npm start, npm run dev, npm run check y npm test desde la raíz. La separación es de archivos y responsabilidades: Express sigue sirviendo ambos lados en el mismo puerto, sin necesitar CORS ni dos servidores. frontend/index.html no se abre con doble clic: se accede mediante la URL local del servidor.
+
+El frontend usa módulos nativos de JavaScript, no React. pages/ contiene la lógica por pantalla y index.html sus secciones HTML. components/ reúne los elementos reutilizables, services/ centraliza la API y routes/ permite enlaces como /#materiales y /#ordenes, además de Atrás/Adelante. No requiere JSX, Vite ni React Router para cumplir el enunciado.
+
+No existe una capa ORM: los controladores usan consultas SQL con parámetros y db.js centraliza el pool. Las direcciones /api existentes se conservan.

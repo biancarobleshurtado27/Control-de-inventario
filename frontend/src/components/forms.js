@@ -1,0 +1,3 @@
+import {$,status} from './ui.js';
+import {api} from '../services/api.js';
+export function submit(selector,path,numeric,refresh,afterReset=()=>{}){$(selector).addEventListener('submit',async e=>{e.preventDefault();const form=e.target,button=form.querySelector('button');button.disabled=true;try{const data=Object.fromEntries(new FormData(form));numeric.forEach(k=>{if(k in data)data[k]=data[k]===''?null:Number(data[k]);});await api(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});form.reset();afterReset();await refresh();status('Registro guardado correctamente.');}catch(error){status(error.message,true);}finally{button.disabled=false;}});}

@@ -1,0 +1,5 @@
+import {$,table,options} from '../components/ui.js';
+import {submit} from '../components/forms.js';
+function movementFields(){const tipo=$('#tipo').value;for(const [name,enabled]of [['origen_id',tipo!=='ENTRADA'],['destino_id',tipo!=='SALIDA'],['orden_detalle_id',tipo==='ENTRADA']]){const input=$(`#movement-form [name="${name}"]`);input.disabled=!enabled;input.closest('label').hidden=!enabled;if(!enabled)input.value='';} }
+export function initMovimientos(refresh){$('#tipo').addEventListener('change',movementFields);movementFields();submit('#movement-form','/movimientos',['material_id','usuario_id','cantidad','origen_id','destino_id','orden_detalle_id'],refresh,movementFields);}
+export function renderMovimientos(d){table('#movement-table',[['Fecha',r=>new Date(r.fecha).toLocaleString('es-CR')],['Tipo','tipo'],['Material','material'],['Cantidad','cantidad'],['Lote','lote'],['Documento','documento'],['Usuario','usuario']],d.movimientos);options('#usuarios',d.usuarios,r=>r.nombre);options('#oc-options',d.ordenes.filter(r=>r.estado==='APROBADA'),r=>`${r.numero} · ${r.material} · ${r.cantidad} · ${r.ubicacion}`,true);}

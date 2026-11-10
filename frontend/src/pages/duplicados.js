@@ -1,0 +1,2 @@
+import {$,table} from '../components/ui.js';
+export function renderDuplicados(d){const dup=d.duplicados;$('#rule').textContent=`Regla: mismo proveedor y material, hasta ${dup.regla.dias} días y ${dup.regla.tolerancia_porcentaje}% de diferencia de cantidad.`;table('#duplicates-table',[['OC 1','orden_1'],['OC 2','orden_2'],['Proveedor','proveedor'],['Material','material'],['Cantidad 1','cantidad_1'],['Cantidad 2','cantidad_2'],['Días','diferencia_dias'],['Diferencia %','diferencia_porcentaje']],dup.posibles_duplicados);}

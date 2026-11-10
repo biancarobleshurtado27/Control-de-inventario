@@ -1,5 +1,5 @@
 import {spawn} from 'node:child_process';import assert from 'node:assert/strict';
-const child=spawn(process.execPath,['src/index.js'],{env:{...process.env,PORT:'3094'},stdio:'ignore'});
+const child=spawn(process.execPath,['backend/src/index.js'],{env:{...process.env,PORT:'3094'},stdio:'ignore'});
 try{
  for(let i=0;i<50;i++){try{await fetch('http://127.0.0.1:3094/api/salud');break;}catch{await new Promise(r=>setTimeout(r,100));}}
  const base='http://127.0.0.1:3094';

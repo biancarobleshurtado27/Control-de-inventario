@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {pool} from '../src/db.js';
-const child=spawn(process.execPath,['src/index.js'],{env:{...process.env,PORT:'3098'},stdio:'ignore'});
+const child=spawn(process.execPath,['backend/src/index.js'],{env:{...process.env,PORT:'3098'},stdio:'ignore'});
 let material;
 const tag='PRUEBA-'+Date.now();
 try{

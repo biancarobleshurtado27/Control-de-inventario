@@ -27,7 +27,7 @@ app.use('/api', sistemaRouter);
 
 
 
-app.use(express.static(fileURLToPath(new URL('../public', import.meta.url))));
+app.use(express.static(fileURLToPath(new URL('../../frontend', import.meta.url))));
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
 app.use((error, req, res, next) => {
   if (error.type === 'entity.too.large') return res.status(413).json({ error: 'La solicitud supera el máximo de 100 KB.' });

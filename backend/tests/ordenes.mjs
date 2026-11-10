@@ -1,5 +1,5 @@
 import {spawn} from 'node:child_process';import assert from 'node:assert/strict';import {pool} from '../src/db.js';
-const child=spawn(process.execPath,['src/index.js'],{env:{...process.env,PORT:'3095'},stdio:'ignore'});let orden;const tag='TEST-ORDEN-'+Date.now();
+const child=spawn(process.execPath,['backend/src/index.js'],{env:{...process.env,PORT:'3095'},stdio:'ignore'});let orden;const tag='TEST-ORDEN-'+Date.now();
 const post=(path,data)=>fetch('http://127.0.0.1:3095/api'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
 try{for(let i=0;i<50;i++){try{await fetch('http://127.0.0.1:3095/api/salud');break;}catch{await new Promise(r=>setTimeout(r,100));}}
 const data={numero:tag,fecha:'2026-11-09',proveedor_id:1,ubicacion_id:1,detalles:[{material_id:1,cantidad:2,precio_unitario:6300}]};

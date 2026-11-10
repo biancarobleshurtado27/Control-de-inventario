@@ -1,4 +1,4 @@
-﻿# Guía de exposición — 10 minutos
+# Guía de exposición — 10 minutos
 
 Material de apoyo para exponer individualmente. Esta guía no es un archivo de diapositivas ni sustituye la presentación en clase.
 
@@ -24,7 +24,7 @@ Material de apoyo para exponer individualmente. Esta guía no es un archivo de d
 ## Preguntas para practicar
 
 ### ¿Dónde está el backend?
-En src/index.js se configura el servidor y sus rutas. db.js crea el pool de conexión; routes/ declara las rutas y controllers/ contiene las validaciones, consultas y respuestas. db.js centraliza la conexión. El frontend está en public/.
+En backend/src/index.js se configura el servidor y sus rutas. db.js crea el pool de conexión; routes/ declara las rutas y controllers/ contiene las validaciones, consultas y respuestas. db.js centraliza la conexión. El frontend está en frontend/, con components/, services/, routes/ y pages/.
 
 ### ¿Cómo se calcula el stock?
 Se suman cantidades que llegan a una ubicación y se restan las que salen. La vista stock_actual obtiene ese saldo desde movimientos. Un traslado tiene origen y destino en el mismo registro.

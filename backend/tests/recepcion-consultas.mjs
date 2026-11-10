@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {pool} from '../src/db.js';
-const child=spawn(process.execPath,['src/index.js'],{env:{...process.env,PORT:'3097'},stdio:'ignore'});
+const child=spawn(process.execPath,['backend/src/index.js'],{env:{...process.env,PORT:'3097'},stdio:'ignore'});
 const tag='TEST-OC-'+Date.now();let material,orden;
 try{
  for(let i=0;i<50;i++){try{await fetch('http://127.0.0.1:3097/api/salud');break;}catch{await new Promise(r=>setTimeout(r,100));}}

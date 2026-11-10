@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
-    "check": "node tests/check-syntax.mjs",
-    "test": "node tests/run.mjs"
+    "start": "node backend/src/index.js",
+    "dev": "node --watch backend/src/index.js",
+    "check": "node backend/tests/check-syntax.mjs",
+    "test": "node backend/tests/run.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
