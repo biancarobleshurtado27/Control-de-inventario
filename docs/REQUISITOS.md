@@ -19,7 +19,7 @@
 - [x] Creación y aprobación manual de órdenes.
 - [x] Backend con routes y controllers separados.
 - [x] Frontend con components, services, routes y pages.
-- [x] Siete suites: backend, middlewares y prueba DOM del frontend con API simulada.
+- [x] Ocho suites: ORM, backend, middlewares y prueba DOM del frontend con API simulada.
 - [x] Cinco middlewares de validación conectados antes de los controladores.
 - [x] Configuración privada fuera de Git y README reproducible.
 - [x] Informe borrador de 9 páginas, actualizado a la arquitectura actual.
@@ -58,3 +58,13 @@ Las pruebas que escriben registros temporales deben ejecutarse solo en la base a
 - [x] Confirmación accesible antes de guardar y aprobar; cancelación sin cambios.
 - [x] Pruebas DOM y de integración MySQL ampliadas y verificadas.
 - [ ] Revisar visualmente los nuevos diálogos, filtros y edición en escritorio y móvil.
+
+## Capa ORM
+- [x] Sequelize configurado con MySQL y el mismo archivo .env.
+- [x] Nueve modelos, relaciones y clave compuesta de políticas.
+- [x] Controladores conectados al ORM y reportes mediante SQL parametrizado en Sequelize.
+- [x] Transacciones y bloqueos de inventario conservados.
+- [x] Uso de las tablas existentes sin sincronización destructiva.
+- [x] Prueba de modelos, relaciones y rollback; regresión de los flujos existentes.
+
+- [ ] Regenerar el PDF del informe con las últimas mejoras y la capa ORM; el texto fuente y README ya describen Sequelize.

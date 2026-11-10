@@ -1,48 +1,29 @@
-import { pool } from '../db.js';
-
-export async function crearMaterial(req, res) {
-  const data=req.body;
-  const limpio=Object.fromEntries(['codigo','nombre','categoria','subcategoria','unidad'].map(campo=>[campo,data[campo]]));
-  const connection = await pool.getConnection();
-  try {
-    await connection.beginTransaction();
-    const [ubicaciones] = await connection.execute('SELECT id FROM ubicaciones WHERE id=?',[data.ubicacion_id]);
-    if (!ubicaciones.length) { await connection.rollback(); return res.status(400).json({ error: 'La ubicación no existe.' }); }
-    const [result] = await connection.execute(`INSERT INTO materiales
-      (codigo,nombre,categoria,subcategoria,unidad,demanda_promedio,demanda_maxima,tiempo_entrega)
-      VALUES (?,?,?,?,?,?,?,?)`,[limpio.codigo,limpio.nombre,limpio.categoria,limpio.subcategoria,limpio.unidad,data.demanda_promedio,data.demanda_maxima,data.tiempo_entrega]);
-    await connection.execute('INSERT INTO politicas_stock (material_id,ubicacion_id,stock_minimo,stock_maximo) VALUES (?,?,?,?)',[result.insertId,data.ubicacion_id,data.stock_minimo,data.stock_maximo]);
-    await connection.commit();
-    res.status(201).json({ id:result.insertId,...limpio,demanda_promedio:data.demanda_promedio,demanda_maxima:data.demanda_maxima,tiempo_entrega:data.tiempo_entrega,stock:0,stock_seguridad:(data.demanda_maxima-data.demanda_promedio)*data.tiempo_entrega,punto_reorden:data.demanda_maxima*data.tiempo_entrega });
-  } catch(error) {
-    await connection.rollback();
-    if(error.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Ya existe un material con ese código.', campos:{codigo:'Ya existe un material con ese código.'} });
-    throw error;
-  } finally { connection.release(); }
-
+import {sequelize} from '../db.js';
+import {Material,PoliticaStock,Ubicacion,Movimiento} from '../models/index.js';
+const camposMaterial=['codigo','nombre','categoria','subcategoria','unidad','demanda_promedio','demanda_maxima','tiempo_entrega'];
+const datosMaterial=d=>Object.fromEntries(camposMaterial.map(k=>[k,d[k]]));
+export async function crearMaterial(req,res){
+ const d=req.body,t=await sequelize.transaction();
+ try{
+  if(!await Ubicacion.findByPk(d.ubicacion_id,{transaction:t})){await t.rollback();return res.status(400).json({error:'La ubicación no existe.',campos:{ubicacion_id:'Selecciona una ubicación existente.'}});}
+  const material=await Material.create(datosMaterial(d),{transaction:t});
+  await PoliticaStock.create({material_id:material.id,ubicacion_id:d.ubicacion_id,stock_minimo:d.stock_minimo,stock_maximo:d.stock_maximo},{transaction:t});
+  await t.commit();res.status(201).json({...material.toJSON(),stock:0,stock_seguridad:(d.demanda_maxima-d.demanda_promedio)*d.tiempo_entrega,punto_reorden:d.demanda_maxima*d.tiempo_entrega});
+ }catch(e){if(!t.finished)await t.rollback();if(e.name==='SequelizeUniqueConstraintError')return res.status(409).json({error:'Ya existe un material con ese código.',campos:{codigo:'Ya existe un material con ese código.'}});throw e;}
 }
-
-// La política pertenece a una ubicación; el catálogo y la unidad son globales.
-export async function consultarMaterial(req,res) {
- const [rows]=await pool.execute('SELECT * FROM materiales WHERE id=?',[req.idValidado]);
- if(!rows.length)return res.status(404).json({error:'Material inexistente.'});
- const [politicas]=await pool.execute('SELECT * FROM politicas_stock WHERE material_id=?',[req.idValidado]);
- res.json({material:rows[0],politicas});
+export async function consultarMaterial(req,res){
+ const material=await Material.findByPk(req.idValidado);if(!material)return res.status(404).json({error:'Material inexistente.'});
+ const politicas=await PoliticaStock.findAll({where:{material_id:material.id},order:[['ubicacion_id','ASC']]});res.json({material,politicas});
 }
-export async function actualizarMaterial(req,res) {
- const d=req.body,c=await pool.getConnection();
- try {
-  await c.beginTransaction();
-  const [rows]=await c.execute('SELECT unidad FROM materiales WHERE id=? FOR UPDATE',[req.idValidado]);
-  if(!rows.length){await c.rollback();return res.status(404).json({error:'Material inexistente.'});}
-  const [u]=await c.execute('SELECT id FROM ubicaciones WHERE id=?',[d.ubicacion_id]);
-  if(!u.length){await c.rollback();return res.status(400).json({error:'Ubicación inexistente.',campos:{ubicacion_id:'Selecciona una ubicación existente.'}});}
-  if(rows[0].unidad!==d.unidad){
-   const [mov]=await c.execute('SELECT id FROM movimientos WHERE material_id=? LIMIT 1',[req.idValidado]);
-   if(mov.length){await c.rollback();return res.status(409).json({error:'La unidad tiene movimientos registrados.',campos:{unidad:'Conserva la unidad para mantener la coherencia del historial.'}});}
-  }
-  await c.execute('UPDATE materiales SET codigo=?,nombre=?,categoria=?,subcategoria=?,unidad=?,demanda_promedio=?,demanda_maxima=?,tiempo_entrega=? WHERE id=?',[d.codigo,d.nombre,d.categoria,d.subcategoria,d.unidad,d.demanda_promedio,d.demanda_maxima,d.tiempo_entrega,req.idValidado]);
-  await c.execute('INSERT INTO politicas_stock(material_id,ubicacion_id,stock_minimo,stock_maximo) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE stock_minimo=?,stock_maximo=?',[req.idValidado,d.ubicacion_id,d.stock_minimo,d.stock_maximo,d.stock_minimo,d.stock_maximo]);
-  await c.commit();res.json({id:req.idValidado,mensaje:'Material y política actualizados.'});
- }catch(error){await c.rollback();if(error.code==='ER_DUP_ENTRY')return res.status(409).json({error:'Código de material repetido.',campos:{codigo:'Ya existe un material con ese código.'}});throw error;}finally{c.release();}
+export async function actualizarMaterial(req,res){
+ const d=req.body,t=await sequelize.transaction();
+ try{
+  const material=await Material.findByPk(req.idValidado,{transaction:t,lock:t.LOCK.UPDATE});
+  if(!material){await t.rollback();return res.status(404).json({error:'Material inexistente.'});}
+  if(!await Ubicacion.findByPk(d.ubicacion_id,{transaction:t})){await t.rollback();return res.status(400).json({error:'Ubicación inexistente.',campos:{ubicacion_id:'Selecciona una ubicación existente.'}});}
+  if(material.unidad!==d.unidad&&await Movimiento.findOne({where:{material_id:material.id},transaction:t})){await t.rollback();return res.status(409).json({error:'La unidad tiene movimientos registrados.',campos:{unidad:'Conserva la unidad para mantener la coherencia del historial.'}});}
+  await material.update(datosMaterial(d),{transaction:t});
+  await PoliticaStock.upsert({material_id:material.id,ubicacion_id:d.ubicacion_id,stock_minimo:d.stock_minimo,stock_maximo:d.stock_maximo},{transaction:t});
+  await t.commit();res.json({id:material.id,mensaje:'Material y política actualizados.'});
+ }catch(e){if(!t.finished)await t.rollback();if(e.name==='SequelizeUniqueConstraintError')return res.status(409).json({error:'Código de material repetido.',campos:{codigo:'Ya existe un material con ese código.'}});throw e;}
 }

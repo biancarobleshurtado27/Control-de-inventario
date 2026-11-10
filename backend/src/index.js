@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import express from 'express';
-import { pool } from './db.js';
+import {pool,sequelize} from './db.js';
 
 import { materialesRouter } from './routes/materiales.routes.js';
 import { movimientosRouter } from './routes/movimientos.routes.js';
@@ -39,7 +39,7 @@ app.use((error, req, res, next) => {
 const port = Number(process.env.PORT || 3000);
 const server = app.listen(port, '127.0.0.1', () => console.log(`API disponible en http://localhost:${port}`));
 async function shutdown() {
-  server.close(async () => { await pool.end(); process.exit(0); });
+  server.close(async () => { await Promise.all([pool.end(),sequelize.close()]); process.exit(0); });
 }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);

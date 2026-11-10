@@ -88,7 +88,7 @@ Para una demo: mostrar alertas, crear una OC con número único, aprobarla, regi
 
 ## Pruebas
 - `npm run check`: revisar sintaxis de backend y frontend.
-- `npm test`: ejecutar siete suites de pruebas funcionales.
+- `npm test`: ejecutar ocho suites de pruebas funcionales.
 - Requieren MySQL, .env y los datos semilla. Crearán datos temporales identificados como pruebas y los eliminarán al finalizar. Ejecutarlas únicamente en la base académica de desarrollo.
 
 Cobertura: entrega de archivos web, consultas iniciales, saldos por lote, salidas simultáneas, traslados, recepciones parciales y completas, rechazo de excesos, creación/aprobación de OC, duplicados, trazabilidad, archivos privados y errores JSON.
@@ -110,7 +110,7 @@ Se probaron formularios en navegador antes del rediseño. La distribución de ó
 - docs/Guion_video_demo.md: guía del video. La usuaria canceló la grabación; no existe un video final entregable.
 - docs/Guia_exposicion_y_codigo.md: material de estudio opcional. La usuaria indicó que no realizará diapositivas ni presentación.
 
-El informe usa el enunciado Trabajo_Gestion_de_Inventarios_Quiz_2.pdf como fuente de datos ficticios. No se extraen precios de sitios externos. El código se desarrolló con apoyo de IA y utiliza Express, mysql2 y dotenv. La autora debe revisar y comprender lo entregado.
+El informe usa el enunciado Trabajo_Gestion_de_Inventarios_Quiz_2.pdf como fuente de datos ficticios. No se extraen precios de sitios externos. El código se desarrolló con apoyo de IA y utiliza Express, Sequelize, mysql2 y dotenv. La autora debe revisar y comprender lo entregado.
 
 ## Identidad visual
 La identidad actual adapta el diseño entregado en stitch_materiales_del_valle.zip: azul marino, superficies grises claras, tipografía editorial y datos monoespaciados. Los estados incluyen texto, además de color. Las secciones, indicadores y avisos usan transiciones breves que respetan prefers-reduced-motion.
@@ -153,7 +153,7 @@ Ejecutar npm ci, npm start, npm run dev, npm run check y npm test desde la raíz
 
 El frontend usa módulos nativos de JavaScript, no React. pages/ contiene la lógica por pantalla y index.html sus secciones HTML. components/ reúne los elementos reutilizables, services/ centraliza la API y routes/ permite enlaces como /#materiales y /#ordenes, además de Atrás/Adelante. No requiere JSX, Vite ni React Router para cumplir el enunciado.
 
-No existe una capa ORM: los controladores usan consultas SQL con parámetros y db.js centraliza el pool. Las direcciones /api existentes se conservan.
+La capa ORM usa Sequelize con modelos y asociaciones en `backend/src/models/`. Los controladores usan modelos para las operaciones de catálogo, políticas, órdenes y movimientos; los reportes complejos usan SQL parametrizado ejecutado mediante Sequelize. Las direcciones `/api` existentes se conservan.
 
 ## Middlewares de validación
 Las solicitudes pasan por la ruta, los middlewares y finalmente el controlador. Los archivos están en backend/src/middlewares/:
@@ -197,3 +197,16 @@ backend/tests/frontend-dom.mjs verifica interacciones de la interfaz con jsdom y
 API añadida: `GET /api/materiales/:id` (material y políticas), `PUT /api/materiales/:id` (edición validada), `GET /api/movimientos/lotes` (saldos positivos). `GET /api/movimientos` acepta `desde`, `hasta`, `material_id`, `ubicacion_id`, `tipo` y `documento`.
 
 Pruebas ampliadas: edición por ubicación sin alterar otra política, protección de unidad con historial, errores por campo, cancelación y confirmación, conservación de datos rechazados, selección y saldo del lote, estados parciales/completos y filtros del servidor. No se requiere modificar `backend/.env` ni ejecutar `seed.sql` otra vez.
+
+## ORM Sequelize
+`backend/src/db.js` configura Sequelize para MySQL a partir del mismo `backend/.env`. No necesitas cambiar las credenciales ni volver a ejecutar los scripts SQL. `DB_TIMEZONE` es opcional y usa `-06:00` por defecto, correspondiente al proyecto en Costa Rica.
+
+Los nueve modelos están en `backend/src/models/`: Usuario, Ubicacion, Proveedor, Material, PoliticaStock, Orden, OrdenDetalle, Movimiento y Configuracion. `index.js` declara sus relaciones `belongsTo`/`hasMany`, incluyendo los alias origen/destino de movimientos. PoliticaStock conserva la clave compuesta material/ubicación. Se usan los nombres de las tablas existentes y `timestamps:false` para no inventar columnas.
+
+Operaciones principales: `findByPk` y `findAll` para consultar, `create`/`bulkCreate` para registrar, `update` para editar/aprobar y `upsert` para políticas. Las escrituras relacionadas usan transacciones Sequelize. El bloqueo del material `FOR UPDATE` mantiene la protección contra salidas simultáneas. Los saldos, vistas, trazabilidad y duplicados conservan consultas SQL parametrizadas mediante `sequelize.query`; usar ORM no obliga a reescribir los reportes analíticos.
+
+No se ejecuta `sync`, `alter` ni `force` al iniciar. El esquema se sigue administrando con los scripts SQL existentes; futuras modificaciones estructurales deberán tener una migración revisable. El pool directo mysql2 queda para preparar y limpiar datos en las pruebas, mientras el servidor opera mediante Sequelize.
+
+`backend/tests/orm.mjs` verifica los nueve modelos contra MySQL, la clave compuesta, consultas de asociaciones y rollback de una transacción. Las siete suites anteriores verifican además los flujos de API y frontend después del cambio. La dependencia transitiva uuid de Sequelize se fija mediante `overrides` a la rama 11 corregida y compatible con sus llamadas v1/v4, con lockfile reproducible.
+
+Documentación oficial: https://sequelize.org/docs/v6/core-concepts/model-basics/ y https://sequelize.org/docs/v6/other-topics/transactions/.

@@ -169,7 +169,7 @@ Stock = entradas y traslados recibidos menos salidas y traslados enviados, más 
 
 ## Parte B. Solución y reglas implementadas
 
-El sistema centraliza el inventario de Bodega Central y Obra Principal. La interfaz consume una API REST de Node.js y Express conectada a MySQL mediante mysql2. Incluye catálogo, dashboard, alertas, órdenes de compra, movimientos, detección de duplicados e historial de trazabilidad.
+El sistema centraliza el inventario de Bodega Central y Obra Principal. La interfaz consume una API REST de Node.js y Express conectada a MySQL mediante el ORM Sequelize y su controlador mysql2. Incluye catálogo, dashboard, alertas, órdenes de compra, movimientos, detección de duplicados e historial de trazabilidad.
 
 | Requisito de opción 2 | Implementación |
 
@@ -219,7 +219,7 @@ El vínculo de salidas y traslados con una OC se reconstruye por material y lote
 
 | Seguridad básica | Archivos privados no accesibles por HTTP; JSON inválido 400 y mayor a 100 KB 413; cabeceras restrictivas. |
 
-<b>Ejecución:</b> instalar Node.js LTS y MySQL 8.0.16 o superior; ejecutar backend/db/schema.sql y backend/db/seed.sql una sola vez en base nueva; ejecutar npm ci desde la raíz; copiar backend/.env.example a backend/.env y completar credenciales locales; iniciar con npm start y abrir http://localhost:3000. npm test ejecuta seis suites. La suite de middlewares incluye 26 casos HTTP sin usar MySQL; las demás usan datos temporales y limpieza cuando corresponde. No publicar .env. El README conserva instrucciones y limitaciones.
+<b>Ejecución:</b> instalar Node.js LTS y MySQL 8.0.16 o superior; ejecutar backend/db/schema.sql y backend/db/seed.sql una sola vez en base nueva; ejecutar npm ci desde la raíz; copiar backend/.env.example a backend/.env y completar credenciales locales; iniciar con npm start y abrir http://localhost:3000. npm test ejecuta ocho suites. La suite de middlewares incluye 26 casos HTTP sin usar MySQL; las demás usan datos temporales y limpieza cuando corresponde. No publicar .env. El README conserva instrucciones y limitaciones.
 
 <b>Revisión móvil:</b> se comprobó a 390 × 844 una columna de campos sin desbordamiento horizontal del documento. La captura móvil no estuvo disponible; queda pendiente una inspección visual completa en teléfono. El video permanece pospuesto. La autora indicó que no realizará presentación ni diapositivas. La revisión visual del nuevo diseño queda pendiente.
 
@@ -228,4 +228,4 @@ El vínculo de salidas y traslados con una OC se reconstruye por material y lote
 
 ## Fuentes y declaración de apoyo
 
-Fuente de datos y fórmulas: Trabajo_Gestion_de_Inventarios_Quiz_2.pdf, páginas 3 a 9, enunciado suministrado. Los proveedores y sus notas en A4 son ficticios. No se extrajeron precios de sitios externos. Código desarrollado con apoyo de IA durante este trabajo; la autora debe revisar y poder explicar cada componente antes de presentar. Dependencias de terceros: Express, mysql2 y dotenv, registradas en package.json y package-lock.json; no se reutilizó un proyecto externo como plantilla.
+Fuente de datos y fórmulas: Trabajo_Gestion_de_Inventarios_Quiz_2.pdf, páginas 3 a 9, enunciado suministrado. Los proveedores y sus notas en A4 son ficticios. No se extrajeron precios de sitios externos. Código desarrollado con apoyo de IA durante este trabajo; la autora debe revisar y poder explicar cada componente antes de presentar. Dependencias de terceros: Express, Sequelize, mysql2 y dotenv, registradas en package.json y package-lock.json; no se reutilizó un proyecto externo como plantilla.

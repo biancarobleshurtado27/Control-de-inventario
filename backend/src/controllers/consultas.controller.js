@@ -1,11 +1,13 @@
-import { pool } from '../db.js';
+import {sequelize,consultarSQL} from '../db.js';
+import {Material,Usuario,Configuracion} from '../models/index.js';
+import {Op} from 'sequelize';
 
 export async function detectarDuplicados(req,res) {
- const [reglas]=await pool.query("SELECT clave,valor FROM configuracion WHERE clave IN ('duplicados_dias','duplicados_tolerancia_porcentaje')");
+ const reglas=await Configuracion.findAll({where:{clave:{[Op.in]:['duplicados_dias','duplicados_tolerancia_porcentaje']}},raw:true});
  const config=Object.fromEntries(reglas.map(r=>[r.clave,Number(r.valor)]));
  const dias=config.duplicados_dias,tolerancia=config.duplicados_tolerancia_porcentaje;
  if(!Number.isFinite(dias)||dias<0||!Number.isFinite(tolerancia)||tolerancia<0||tolerancia>100) return res.status(500).json({error:'Configuración de duplicados inválida.'});
- const [rows]=await pool.execute(`WITH cantidades AS (
+ const [rows]=await consultarSQL(`WITH cantidades AS (
  SELECT o.id,o.numero,o.fecha,o.proveedor_id,d.material_id,SUM(d.cantidad) cantidad
  FROM ordenes o JOIN orden_detalles d ON d.orden_id=o.id WHERE o.estado<>'CANCELADA'
  GROUP BY o.id,o.numero,o.fecha,o.proveedor_id,d.material_id)
@@ -23,9 +25,9 @@ export async function detectarDuplicados(req,res) {
 
 export async function consultarTrazabilidad(req,res) {
  const id=req.idValidado;
- const [material]=await pool.execute('SELECT id,codigo,nombre,unidad FROM materiales WHERE id=?',[id]);
+ const m=await Material.findByPk(id,{attributes:['id','codigo','nombre','unidad'],raw:true});const material=m?[m]:[];
  if(!material.length) return res.status(404).json({error:'Material inexistente.'});
- const [movimientos]=await pool.execute(`SELECT mv.id,mv.fecha,mv.tipo,mv.cantidad,mv.lote,mv.documento,mv.motivo,
+ const [movimientos]=await consultarSQL(`SELECT mv.id,mv.fecha,mv.tipo,mv.cantidad,mv.lote,mv.documento,mv.motivo,
  u.nombre AS usuario,ori.nombre AS origen,dest.nombre AS destino,
  oc.numero AS orden_compra_directa,
  (SELECT GROUP_CONCAT(DISTINCT o.numero ORDER BY o.numero SEPARATOR ', ') FROM movimientos entrada
@@ -40,13 +42,13 @@ export async function consultarTrazabilidad(req,res) {
 }
 
 export async function listarUsuarios(req,res) {
- const [rows]=await pool.query('SELECT id,nombre FROM usuarios ORDER BY nombre');res.json(rows);
+ const rows=await Usuario.findAll({attributes:['id','nombre'],order:[['nombre','ASC']]});res.json(rows);
 
 }
 
 export async function listarOrdenes(req,res) {
- const [rows]=await pool.query(`SELECT d.id,o.id AS orden_id,o.numero,o.fecha,o.estado,p.nombre AS proveedor,d.material_id,m.nombre AS material,d.cantidad,d.precio_unitario,o.ubicacion_id,u.nombre AS ubicacion FROM ordenes o JOIN proveedores p ON p.id=o.proveedor_id JOIN orden_detalles d ON d.orden_id=o.id JOIN materiales m ON m.id=d.material_id JOIN ubicaciones u ON u.id=o.ubicacion_id ORDER BY o.fecha DESC,o.id DESC`);
- const [recibidos]=await pool.query('SELECT orden_detalle_id,SUM(cantidad) AS recibido FROM movimientos WHERE tipo="ENTRADA" AND orden_detalle_id IS NOT NULL GROUP BY orden_detalle_id');
+ const [rows]=await consultarSQL(`SELECT d.id,o.id AS orden_id,o.numero,o.fecha,o.estado,p.nombre AS proveedor,d.material_id,m.nombre AS material,d.cantidad,d.precio_unitario,o.ubicacion_id,u.nombre AS ubicacion FROM ordenes o JOIN proveedores p ON p.id=o.proveedor_id JOIN orden_detalles d ON d.orden_id=o.id JOIN materiales m ON m.id=d.material_id JOIN ubicaciones u ON u.id=o.ubicacion_id ORDER BY o.fecha DESC,o.id DESC`);
+ const [recibidos]=await consultarSQL('SELECT orden_detalle_id,SUM(cantidad) AS recibido FROM movimientos WHERE tipo="ENTRADA" AND orden_detalle_id IS NOT NULL GROUP BY orden_detalle_id');
  const sumas=new Map(recibidos.map(x=>[x.orden_detalle_id,Number(x.recibido)]));
  for(const row of rows){row.cantidad_recibida=sumas.get(row.id)||0;row.cantidad_pendiente=Math.max(0,Number(row.cantidad)-row.cantidad_recibida);}
  const estados=new Map();
