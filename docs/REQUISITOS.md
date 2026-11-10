@@ -19,14 +19,15 @@
 - [x] Creación y aprobación manual de órdenes.
 - [x] Backend con routes y controllers separados.
 - [x] Frontend con components, services, routes y pages.
-- [x] Seis suites de pruebas: cinco existentes y una con 26 casos de middlewares.
+- [x] Siete suites: backend, middlewares y prueba DOM del frontend con API simulada.
 - [x] Cinco middlewares de validación conectados antes de los controladores.
 - [x] Configuración privada fuera de Git y README reproducible.
 - [x] Informe borrador de 9 páginas, actualizado a la arquitectura actual.
 
 ## Revisión final pendiente
 - [x] Portada con Bianca Robles Hurtado.
-- [ ] Revisión visual del nuevo estilo en escritorio.
+- [x] Diseño de Stitch integrado con animaciones y tipografías locales.
+- [ ] Revisión visual del diseño Stitch en escritorio (herramienta de navegador no disponible).
 - [ ] Revisión visual completa en teléfono y formularios tras modularizar.
 - [ ] Revisión y aceptación final del informe por la autora.
 - [ ] Grabar y revisar video de máximo 5 minutos con alerta o detección. Pospuesto por la usuaria; no hay video final entregable.
@@ -44,5 +45,6 @@ Abrir el servidor y comprobar, sin escribir contraseñas en capturas:
 5. Selecciones de ubicación y material correctas después de actualizar.
 
 Las pruebas que escriben registros temporales deben ejecutarse solo en la base académica de desarrollo. No repetir seed.sql sobre una base con datos de trabajo.
+
 
 

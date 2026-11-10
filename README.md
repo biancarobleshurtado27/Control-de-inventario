@@ -88,7 +88,7 @@ Para una demo: mostrar alertas, crear una OC con número único, aprobarla, regi
 
 ## Pruebas
 - `npm run check`: revisar sintaxis de backend y frontend.
-- `npm test`: ejecutar seis suites de pruebas funcionales.
+- `npm test`: ejecutar siete suites de pruebas funcionales.
 - Requieren MySQL, .env y los datos semilla. Crearán datos temporales identificados como pruebas y los eliminarán al finalizar. Ejecutarlas únicamente en la base académica de desarrollo.
 
 Cobertura: entrega de archivos web, consultas iniciales, saldos por lote, salidas simultáneas, traslados, recepciones parciales y completas, rechazo de excesos, creación/aprobación de OC, duplicados, trazabilidad, archivos privados y errores JSON.
@@ -113,7 +113,7 @@ Se probaron formularios en navegador antes del rediseño. La distribución de ó
 El informe usa el enunciado Trabajo_Gestion_de_Inventarios_Quiz_2.pdf como fuente de datos ficticios. No se extraen precios de sitios externos. El código se desarrolló con apoyo de IA y utiliza Express, mysql2 y dotenv. La autora debe revisar y comprender lo entregado.
 
 ## Identidad visual
-Materiales del Valle utiliza arena, marfil, terracota y oliva, encabezados serif y navegación numerada. Los estados incluyen texto, además de color. Los formularios se adaptan al ancho disponible y cada sección vuelve al inicio al abrirse.
+La identidad actual adapta el diseño entregado en stitch_materiales_del_valle.zip: azul marino, superficies grises claras, tipografía editorial y datos monoespaciados. Los estados incluyen texto, además de color. Las secciones, indicadores y avisos usan transiciones breves que respetan prefers-reduced-motion.
 
 ## Organización del proyecto
 ```text
@@ -170,4 +170,18 @@ Las entradas inválidas responden 400 o 415 y no llegan al controlador. Las comp
 
 backend/tests/middlewares.mjs verifica 26 casos HTTP sin modificar la base de datos y confirma que las solicitudes inválidas no ejecutan el controlador. npm test ejecuta esta suite y las cinco anteriores.
 
+
+
+## Integración de Stitch
+Referencia suministrada por la autora: stitch_materiales_del_valle.zip, con Resumen, Catálogo y Movimientos y el documento Técnica Civil & Editorial. Se adaptó el lenguaje a las seis pantallas manteniendo la API y las validaciones existentes. No se ejecutan scripts del ZIP ni se usa Tailwind por CDN.
+
+- Paneles de reposición con existencias y PR obtenidos de la API. Preparar OC prellena material, ubicación y diferencia hasta PR sin guardar automáticamente.
+- Conteo de OC pendientes sin duplicar sus líneas. No se muestran métricas, usuarios, certificaciones ni infraestructura ficticios del prototipo de Stitch.
+- Filtros de inventario por texto, ubicación y estado; exportación CSV del resultado visible. La exportación protege textos con prefijos interpretables como fórmulas.
+- Formulario de materiales dividido en identificación, logística y demanda. Vista previa de SS y PR con la misma fórmula del backend.
+- Selector visual de entradas, salidas, traslados y ajustes que mantiene la validación del servidor.
+- Animaciones de entrada, estados de carga y transiciones de interacción. Respeta movimiento reducido.
+- Tipografías Newsreader, Work Sans y JetBrains Mono servidas localmente en frontend/assets/fonts/, con sus licencias SIL OFL. Fuente: Google Fonts, https://github.com/google/fonts (directorios ofl/newsreader, ofl/worksans, ofl/jetbrainsmono).
+
+backend/tests/frontend-dom.mjs verifica interacciones de la interfaz con jsdom y datos simulados. No escribe en MySQL ni equivale a una revisión visual en navegador. La herramienta de navegador no estuvo disponible al integrar el diseño, por lo que sigue pendiente la revisión visual en escritorio y móvil.
 
