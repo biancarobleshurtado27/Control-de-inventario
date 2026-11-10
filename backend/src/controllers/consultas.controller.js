@@ -22,8 +22,7 @@ export async function detectarDuplicados(req,res) {
 }
 
 export async function consultarTrazabilidad(req,res) {
- const id=Number(req.params.id);
- if(!Number.isSafeInteger(id)||id<1||id>2147483647) return res.status(400).json({error:'Identificador inválido.'});
+ const id=req.idValidado;
  const [material]=await pool.execute('SELECT id,codigo,nombre,unidad FROM materiales WHERE id=?',[id]);
  if(!material.length) return res.status(404).json({error:'Material inexistente.'});
  const [movimientos]=await pool.execute(`SELECT mv.id,mv.fecha,mv.tipo,mv.cantidad,mv.lote,mv.documento,mv.motivo,

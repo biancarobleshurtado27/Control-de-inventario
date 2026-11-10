@@ -19,7 +19,8 @@
 - [x] Creación y aprobación manual de órdenes.
 - [x] Backend con routes y controllers separados.
 - [x] Frontend con components, services, routes y pages.
-- [x] Cinco suites de pruebas del backend y entrega de archivos frontend.
+- [x] Seis suites de pruebas: cinco existentes y una con 26 casos de middlewares.
+- [x] Cinco middlewares de validación conectados antes de los controladores.
 - [x] Configuración privada fuera de Git y README reproducible.
 - [x] Informe borrador de 9 páginas, actualizado a la arquitectura actual.
 
@@ -43,3 +44,4 @@ Abrir el servidor y comprobar, sin escribir contraseñas en capturas:
 5. Selecciones de ubicación y material correctas después de actualizar.
 
 Las pruebas que escriben registros temporales deben ejecutarse solo en la base académica de desarrollo. No repetir seed.sql sobre una base con datos de trabajo.
+

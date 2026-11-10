@@ -1,4 +1,4 @@
-# Materiales del Valle · Control de inventario
+﻿# Materiales del Valle · Control de inventario
 
 Prototipo académico para Constructora Del Valle S.A., opción 2 del Quiz de Gestión de Inventarios. Incluye una interfaz web y una API REST con Node.js, Express y MySQL.
 
@@ -88,7 +88,7 @@ Para una demo: mostrar alertas, crear una OC con número único, aprobarla, regi
 
 ## Pruebas
 - `npm run check`: revisar sintaxis de backend y frontend.
-- `npm test`: ejecutar cinco suites de pruebas funcionales.
+- `npm test`: ejecutar seis suites de pruebas funcionales.
 - Requieren MySQL, .env y los datos semilla. Crearán datos temporales identificados como pruebas y los eliminarán al finalizar. Ejecutarlas únicamente en la base académica de desarrollo.
 
 Cobertura: entrega de archivos web, consultas iniciales, saldos por lote, salidas simultáneas, traslados, recepciones parciales y completas, rechazo de excesos, creación/aprobación de OC, duplicados, trazabilidad, archivos privados y errores JSON.
@@ -125,7 +125,8 @@ backend/
     index.js               Servidor y manejo de errores
     db.js                  Conexión MySQL
     routes/                Rutas HTTP de la API
-    controllers/           Validaciones, consultas y respuestas
+    middlewares/           Cinco validadores previos al controlador
+    controllers/           Consultas, transacciones y respuestas
   tests/                   Pruebas del servidor y entrega del frontend
 frontend/
   index.html               Estructura HTML de las seis pantallas
@@ -153,3 +154,19 @@ Ejecutar npm ci, npm start, npm run dev, npm run check y npm test desde la raíz
 El frontend usa módulos nativos de JavaScript, no React. pages/ contiene la lógica por pantalla y index.html sus secciones HTML. components/ reúne los elementos reutilizables, services/ centraliza la API y routes/ permite enlaces como /#materiales y /#ordenes, además de Atrás/Adelante. No requiere JSX, Vite ni React Router para cumplir el enunciado.
 
 No existe una capa ORM: los controladores usan consultas SQL con parámetros y db.js centraliza el pool. Las direcciones /api existentes se conservan.
+
+## Middlewares de validación
+Las solicitudes pasan por la ruta, los middlewares y finalmente el controlador. Los archivos están en backend/src/middlewares/:
+
+| Archivo | Validación |
+|---|---|
+| exigirJson.js | Requiere Content-Type application/json en la creación de materiales, movimientos y órdenes. Devuelve 415 si no corresponde. |
+| validarMaterial.js | Campos de texto, longitudes, demandas, tiempo de entrega, ubicación y coherencia de mínimos/máximos. Normaliza espacios. |
+| validarMovimiento.js | Tipo, identificadores, cantidad, documento, motivo, lote y combinación de origen/destino. Exige línea de OC para entradas. |
+| validarOrden.js | Datos generales, fecha real, 1 a 100 líneas, cantidades y precios válidos y materiales no repetidos. |
+| validarId.js | Parámetros :id enteros positivos dentro del rango INT de MySQL, sin notación decimal ni científica. |
+
+Las entradas inválidas responden 400 o 415 y no llegan al controlador. Las comprobaciones dependientes de MySQL (existencia de registros, códigos únicos, saldo del lote, OC aprobada y recepción acumulada) permanecen en los controladores, dentro de las transacciones cuando corresponde. No se sustituye el control de concurrencia por una validación previa.
+
+backend/tests/middlewares.mjs verifica 26 casos HTTP sin modificar la base de datos y confirma que las solicitudes inválidas no ejecutan el controlador. npm test ejecuta esta suite y las cinco anteriores.
+
