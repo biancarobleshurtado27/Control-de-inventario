@@ -3,7 +3,7 @@
 
 <b>Constructora Del Valle S.A.</b><br/>Opción 2: control de inventario para una empresa de construcción.
 
-<b>Autora:</b> pendiente de confirmar nombre completo.<br/><b>Modalidad:</b> individual.<br/><b>Fecha de preparación:</b> 9 de noviembre de 2026.
+<b>Autora:</b> pendiente de confirmar nombre completo.<br/><b>Modalidad:</b> individual.<br/><b>Fecha de preparación:</b> 10 de noviembre de 2026.
 
 <b>Tecnologías:</b> Node.js, Express, MySQL y una interfaz web con HTML, CSS y JavaScript.
 
@@ -183,6 +183,8 @@ El sistema centraliza el inventario de Bodega Central y Obra Principal. La inter
 
 | Trazabilidad | Historial por material con lote, usuario, documento, ubicaciones y OC de procedencia. |
 
+<b>Organización:</b> backend/src/routes declara los endpoints y controllers procesa validaciones y consultas; db.js centraliza MySQL. frontend/src separa components, services, routes y pages. Los módulos de página usan las secciones HTML de index.html. La navegación utiliza hash, por ejemplo /#materiales. Un servidor Express sirve ambos lados y npm start se ejecuta desde la raíz.
+
 <b>Integridad:</b> las operaciones usan transacciones. El bloqueo del material serializa movimientos simultáneos; se rechazan saldos insuficientes por lote. Las recepciones requieren OC aprobada del mismo material y destino y no pueden superar lo pedido. El material y su política de stock se crean juntos.
 
 <b>Supuestos de datos:</b> las órdenes de A3 se cargan aprobadas para demostrar detección, sin tratarlas como recibidas. Los stocks de A5 se cargan como ajustes iniciales separados. Los límites mínimos/máximos del prototipo son propuestos. Una ubicación nueva receptora hereda inicialmente una política del material. Demanda y entrega son globales del material.
@@ -215,9 +217,9 @@ El vínculo de salidas y traslados con una OC se reconstruye por material y lote
 
 | Seguridad básica | Archivos privados no accesibles por HTTP; JSON inválido 400 y mayor a 100 KB 413; cabeceras restrictivas. |
 
-<b>Ejecución:</b> instalar Node.js LTS y MySQL 8.0.16 o superior; ejecutar db/schema.sql y db/seed.sql una sola vez en base nueva; ejecutar npm install; copiar .env.example a .env y completar credenciales locales; iniciar con npm start y abrir http://localhost:3000. npm test ejecuta cinco suites con datos temporales y limpieza. No publicar .env. El README conserva instrucciones y limitaciones.
+<b>Ejecución:</b> instalar Node.js LTS y MySQL 8.0.16 o superior; ejecutar backend/db/schema.sql y backend/db/seed.sql una sola vez en base nueva; ejecutar npm ci desde la raíz; copiar backend/.env.example a backend/.env y completar credenciales locales; iniciar con npm start y abrir http://localhost:3000. npm test ejecuta cinco suites con datos temporales y limpieza. No publicar .env. El README conserva instrucciones y limitaciones.
 
-<b>Revisión móvil:</b> se comprobó a 390 × 844 una columna de campos sin desbordamiento horizontal del documento. La captura móvil no estuvo disponible; queda pendiente una inspección visual completa en teléfono. El video y la exposición todavía deben prepararse.
+<b>Revisión móvil:</b> se comprobó a 390 × 844 una columna de campos sin desbordamiento horizontal del documento. La captura móvil no estuvo disponible; queda pendiente una inspección visual completa en teléfono. El video permanece pospuesto. La autora indicó que no realizará presentación ni diapositivas. La revisión visual del nuevo diseño queda pendiente.
 
 <b>Conclusiones:</b> normalizar materiales permite identificar volumen y ahorro; comparar con contratos evita confundir gasto con pérdida; separar sospechas de duplicidad de pérdidas confirmadas mejora el análisis. La trazabilidad y el stock derivado del historial permiten explicar cada existencia. El prototipo conecta esos controles con una solución operativa y verificable, aunque requiere autenticación y autorizaciones por rol antes de un uso público.
 
