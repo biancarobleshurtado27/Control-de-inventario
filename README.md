@@ -93,7 +93,7 @@ Para una demo: mostrar alertas, crear una OC con número único, aprobarla, regi
 
 Cobertura: entrega de archivos web, consultas iniciales, saldos por lote, salidas simultáneas, traslados, recepciones parciales y completas, rechazo de excesos, creación/aprobación de OC, duplicados, trazabilidad, archivos privados y errores JSON.
 
-Se probaron formularios en navegador antes del rediseño. La distribución de órdenes se verificó a 390 × 844, pero falta una revisión visual completa en teléfono. El nuevo estilo tierra aún requiere revisión visual en navegador.
+Se probaron formularios en navegador antes del rediseño. La distribución de órdenes se verificó a 390 × 844, pero falta una revisión visual completa en teléfono. Las nuevas operaciones y diálogos requieren revisión visual en navegador después de esta actualización.
 
 ## Seguridad y límites
 - Consultas con parámetros y validaciones de entrada.
@@ -101,13 +101,13 @@ Se probaron formularios en navegador antes del rediseño. La distribución de ó
 - Cabeceras para recursos del mismo origen, impedir marcos y evitar detección de tipos MIME.
 - Prototipo local sin autenticación ni permisos por rol. Seleccionar usuario no verifica identidad.
 - La aprobación manual no aplica la matriz monetaria A1, que es un extra opcional.
-- El estado de una OC no cambia automáticamente a RECIBIDA; el límite acumulado impide recibir de más.
+- La API conserva `estado` como estado administrativo y calcula `estado_recepcion` a partir de las entradas de todas las líneas: APROBADA, RECIBIDA PARCIALMENTE o RECIBIDA. No requiere migrar el ENUM ni ejecutar otra vez los scripts SQL.
 - Una ubicación receptora nueva hereda inicialmente los límites de una política existente del material.
 
 ## Entregables y pendientes
 - docs/Informe_Gestion_Inventarios_Borrador.pdf: nueve páginas con A1-A5, circuito, modelo, solución, conclusiones y fuentes. Portada con Bianca Robles Hurtado; falta revisión final de la autora.
 - docs/Informe_contenido.md: texto base del informe.
-- docs/Guion_video_demo.md: guía del video. La grabación está pospuesta y todavía no existe un video final entregable.
+- docs/Guion_video_demo.md: guía del video. La usuaria canceló la grabación; no existe un video final entregable.
 - docs/Guia_exposicion_y_codigo.md: material de estudio opcional. La usuaria indicó que no realizará diapositivas ni presentación.
 
 El informe usa el enunciado Trabajo_Gestion_de_Inventarios_Quiz_2.pdf como fuente de datos ficticios. No se extraen precios de sitios externos. El código se desarrolló con apoyo de IA y utiliza Express, mysql2 y dotenv. La autora debe revisar y comprender lo entregado.
@@ -185,3 +185,15 @@ Referencia suministrada por la autora: stitch_materiales_del_valle.zip, con Resu
 
 backend/tests/frontend-dom.mjs verifica interacciones de la interfaz con jsdom y datos simulados. No escribe en MySQL ni equivale a una revisión visual en navegador. La herramienta de navegador no estuvo disponible al integrar el diseño, por lo que sigue pendiente la revisión visual en escritorio y móvil.
 
+
+## Mejoras de operación y revisión
+- En Catálogo, **Editar** carga el material y sus políticas. Los datos del catálogo son globales; al cambiar la ubicación se cargan sus límites, o cero si aún no existe política. Guardar actualiza únicamente la política seleccionada. La unidad no puede cambiar si hay movimientos históricos.
+- Materiales, movimientos y OC muestran errores junto al campo, mantienen los valores ante un rechazo y permiten corregir sin repetir el formulario. El servidor sigue validando independientemente del navegador.
+- El diálogo de confirmación muestra los valores reales antes de guardar o aprobar. Volver a editar o Escape cancela sin enviar la operación; se bloquean envíos repetidos mientras está abierta.
+- Las OC muestran cantidades solicitadas, recibidas y pendientes por línea. El estado de recepción se calcula sobre todas las líneas de la orden. Solo las líneas aprobadas con saldo pendiente y del mismo material/destino aparecen al registrar una entrada.
+- Salidas, traslados y ajustes negativos seleccionan lotes con saldo positivo en el origen. La cantidad máxima es informativa y se valida de nuevo dentro de la transacción para evitar salidas simultáneas sin saldo.
+- La bitácora filtra por fechas inclusivas, material, origen o destino, tipo y parte literal del documento. Los filtros se aplican en MySQL sobre todo el historial; la respuesta muestra hasta 200 coincidencias recientes. Actualizar conserva los filtros.
+
+API añadida: `GET /api/materiales/:id` (material y políticas), `PUT /api/materiales/:id` (edición validada), `GET /api/movimientos/lotes` (saldos positivos). `GET /api/movimientos` acepta `desde`, `hasta`, `material_id`, `ubicacion_id`, `tipo` y `documento`.
+
+Pruebas ampliadas: edición por ubicación sin alterar otra política, protección de unidad con historial, errores por campo, cancelación y confirmación, conservación de datos rechazados, selección y saldo del lote, estados parciales/completos y filtros del servidor. No se requiere modificar `backend/.env` ni ejecutar `seed.sql` otra vez.

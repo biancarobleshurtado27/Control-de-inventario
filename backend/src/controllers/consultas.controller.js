@@ -45,6 +45,13 @@ export async function listarUsuarios(req,res) {
 }
 
 export async function listarOrdenes(req,res) {
- const [rows]=await pool.query(`SELECT d.id,o.id AS orden_id,o.numero,o.fecha,o.estado,p.nombre AS proveedor,d.material_id,m.nombre AS material,d.cantidad,d.precio_unitario,o.ubicacion_id,u.nombre AS ubicacion FROM ordenes o JOIN proveedores p ON p.id=o.proveedor_id JOIN orden_detalles d ON d.orden_id=o.id JOIN materiales m ON m.id=d.material_id JOIN ubicaciones u ON u.id=o.ubicacion_id ORDER BY o.fecha DESC,o.id DESC`);res.json(rows);
+ const [rows]=await pool.query(`SELECT d.id,o.id AS orden_id,o.numero,o.fecha,o.estado,p.nombre AS proveedor,d.material_id,m.nombre AS material,d.cantidad,d.precio_unitario,o.ubicacion_id,u.nombre AS ubicacion FROM ordenes o JOIN proveedores p ON p.id=o.proveedor_id JOIN orden_detalles d ON d.orden_id=o.id JOIN materiales m ON m.id=d.material_id JOIN ubicaciones u ON u.id=o.ubicacion_id ORDER BY o.fecha DESC,o.id DESC`);
+ const [recibidos]=await pool.query('SELECT orden_detalle_id,SUM(cantidad) AS recibido FROM movimientos WHERE tipo="ENTRADA" AND orden_detalle_id IS NOT NULL GROUP BY orden_detalle_id');
+ const sumas=new Map(recibidos.map(x=>[x.orden_detalle_id,Number(x.recibido)]));
+ for(const row of rows){row.cantidad_recibida=sumas.get(row.id)||0;row.cantidad_pendiente=Math.max(0,Number(row.cantidad)-row.cantidad_recibida);}
+ const estados=new Map();
+ for(const row of rows){const total=estados.get(row.orden_id)||{recibido:0,pendiente:0};total.recibido+=row.cantidad_recibida;total.pendiente+=row.cantidad_pendiente;estados.set(row.orden_id,total);}
+ for(const row of rows){const total=estados.get(row.orden_id);row.estado_recepcion=['PENDIENTE','CANCELADA'].includes(row.estado)?row.estado:total.pendiente===0?'RECIBIDA':total.recibido>0?'RECIBIDA PARCIALMENTE':row.estado;}
+ res.json(rows);
 
 }

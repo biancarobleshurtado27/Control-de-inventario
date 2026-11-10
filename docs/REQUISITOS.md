@@ -30,7 +30,7 @@
 - [ ] Revisión visual del diseño Stitch en escritorio (herramienta de navegador no disponible).
 - [ ] Revisión visual completa en teléfono y formularios tras modularizar.
 - [ ] Revisión y aceptación final del informe por la autora.
-- [ ] Grabar y revisar video de máximo 5 minutos con alerta o detección. Pospuesto por la usuaria; no hay video final entregable.
+- [ ] Video de máximo 5 minutos: cancelado por la usuaria; no se generará. Verificar con el docente si se exige para la entrega.
 - [ ] Realizar la entrega en el canal indicado por el docente.
 
 ## Alcance y preferencias
@@ -48,3 +48,13 @@ Las pruebas que escriben registros temporales deben ejecutarse solo en la base a
 
 
 
+
+## Mejoras adicionales completadas
+- [x] Editar materiales y políticas por ubicación sin alterar movimientos.
+- [x] Errores por campo y conservación de los datos rechazados.
+- [x] Estados de recepción de OC y cantidades recibidas/pendientes.
+- [x] Selector de lotes con saldo por material y origen.
+- [x] Filtros de bitácora aplicados en el servidor y conservados al actualizar.
+- [x] Confirmación accesible antes de guardar y aprobar; cancelación sin cambios.
+- [x] Pruebas DOM y de integración MySQL ampliadas y verificadas.
+- [ ] Revisar visualmente los nuevos diálogos, filtros y edición en escritorio y móvil.

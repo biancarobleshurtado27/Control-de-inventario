@@ -12,10 +12,22 @@ try{
  const base={tipo:'ENTRADA',material_id:material,usuario_id:1,cantidad:6,destino_id:1,orden_detalle_id:d.insertId,documento:tag,motivo:'Prueba de recepción',lote:tag};
  const post=body=>fetch('http://127.0.0.1:3097/api/movimientos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
  assert.equal((await post(base)).status,201);
+ const get=async path=>(await fetch('http://127.0.0.1:3097/api'+path)).json();
+ let line=(await get('/ordenes')).find(x=>x.id===d.insertId);assert.equal(line.estado_recepcion,'RECIBIDA PARCIALMENTE');assert.equal(Number(line.cantidad_pendiente),4);
+ const update={codigo:tag,nombre:'Material editado',categoria:'Prueba',subcategoria:'Prueba',unidad:'unidad',demanda_promedio:1,demanda_maxima:3,tiempo_entrega:2,ubicacion_id:2,stock_minimo:4,stock_maximo:40};
+ const put=body=>fetch(`http://127.0.0.1:3097/api/materiales/${material}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ assert.equal((await put(update)).status,200);let detail=await get(`/materiales/${material}`);assert.equal(detail.material.nombre,'Material editado');assert.equal(detail.politicas.length,2);assert.equal(Number(detail.politicas.find(p=>p.ubicacion_id===1).stock_minimo),1);
+ const blocked=await put({...update,unidad:'saco'});assert.equal(blocked.status,409);assert.ok((await blocked.json()).campos.unidad);
+ const invalid=await put({...update,stock_maximo:1});assert.equal(invalid.status,400);assert.ok((await invalid.json()).campos.stock_maximo);
+
  assert.equal((await post({...base,cantidad:5})).status,409);
  assert.equal((await post({...base,cantidad:4})).status,201);
+ line=(await get('/ordenes')).find(x=>x.id===d.insertId);assert.equal(line.estado_recepcion,'RECIBIDA');assert.equal(Number(line.cantidad_pendiente),0);
  assert.equal((await post({...base,cantidad:1})).status,409);
  assert.equal((await post({...base,tipo:'TRASLADO',orden_detalle_id:null,origen_id:1,destino_id:2,cantidad:3})).status,201);
+ const lots=await get('/movimientos/lotes');assert.equal(Number(lots.find(x=>x.material_id===material&&x.ubicacion_id===1).saldo),7);assert.equal(Number(lots.find(x=>x.material_id===material&&x.ubicacion_id===2).saldo),3);
+ const filter=await get(`/movimientos?material_id=${material}&tipo=TRASLADO&ubicacion_id=2&documento=${tag}`);assert.equal(filter.length,1);assert.equal(filter[0].origen,'Bodega Central');assert.equal((await get(`/movimientos?material_id=${material}&desde=2000-01-01&hasta=2000-01-02`)).length,0);
+ assert.equal((await fetch('http://127.0.0.1:3097/api/movimientos?desde=2026-02-30')).status,400);
  const tr=await (await fetch(`http://127.0.0.1:3097/api/materiales/${material}/trazabilidad`)).json();
  assert.equal(tr.movimientos.length,3);assert.ok(tr.movimientos.every(r=>r.ordenes_origen_lote===tag));
  const dup=await (await fetch('http://127.0.0.1:3097/api/ordenes/posibles-duplicados')).json();
