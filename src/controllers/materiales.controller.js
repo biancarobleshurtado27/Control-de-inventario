@@ -1,7 +1,6 @@
-import { Router } from 'express';
-import { pool } from './db.js';
-export const materialesRouter = Router();
-materialesRouter.post('/', async (req, res) => {
+import { pool } from '../db.js';
+
+export async function crearMaterial(req, res) {
   const data = req.body;
   if (!data || typeof data !== 'object' || Array.isArray(data)) return res.status(400).json({ error: 'Envía un objeto JSON.' });
   const limites = { codigo:40, nombre:150, categoria:100, subcategoria:100, unidad:20 };
@@ -34,4 +33,5 @@ materialesRouter.post('/', async (req, res) => {
     if(error.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'Ya existe un material con ese código.' });
     throw error;
   } finally { connection.release(); }
-});
+
+}

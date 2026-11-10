@@ -1,8 +1,9 @@
-import {Router} from 'express';
-import {pool} from './db.js';
-export const ordenesRouter=Router();
-ordenesRouter.get('/proveedores',async(req,res)=>{const [rows]=await pool.query('SELECT id,nombre FROM proveedores ORDER BY nombre');res.json(rows);});
-ordenesRouter.post('/ordenes',async(req,res)=>{
+﻿import { pool } from '../db.js';
+
+export async function listarProveedores(req,res) {const [rows]=await pool.query('SELECT id,nombre FROM proveedores ORDER BY nombre');res.json(rows);
+}
+
+export async function crearOrden(req,res) {
  const d=req.body;const validId=v=>Number.isSafeInteger(v)&&v>0&&v<=2147483647;
  if(!d||typeof d.numero!=='string'||!d.numero.trim()||d.numero.trim().length>40||!validId(d.proveedor_id)||!validId(d.ubicacion_id)||!Array.isArray(d.detalles)||!d.detalles.length||d.detalles.length>100) return res.status(400).json({error:'Indica número, proveedor, ubicación y entre 1 y 100 líneas.'});
  if(typeof d.fecha!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d.fecha)||Number(d.fecha.slice(0,4))<1000||Number.isNaN(Date.parse(d.fecha+'T00:00:00Z'))||new Date(d.fecha+'T00:00:00Z').toISOString().slice(0,10)!==d.fecha) return res.status(400).json({error:'Fecha inválida. Usa AAAA-MM-DD.'});
@@ -18,10 +19,14 @@ ordenesRouter.post('/ordenes',async(req,res)=>{
  for(const l of d.detalles) await c.execute('INSERT INTO orden_detalles(orden_id,material_id,cantidad,precio_unitario) VALUES (?,?,?,?)',[r.insertId,l.material_id,l.cantidad,l.precio_unitario]);
  await c.commit();res.status(201).json({id:r.insertId,numero:d.numero.trim(),estado:'PENDIENTE'});
  }catch(e){await c.rollback();if(e.code==='ER_DUP_ENTRY')return res.status(409).json({error:'Ya existe ese número de OC.'});throw e;}finally{c.release();}
-});
-ordenesRouter.post('/ordenes/:id/aprobar',async(req,res)=>{
+
+}
+
+export async function aprobarOrden(req,res) {
  const id=Number(req.params.id);if(!Number.isSafeInteger(id)||id<1||id>2147483647)return res.status(400).json({error:'Identificador inválido.'});
  const [r]=await pool.execute("UPDATE ordenes SET estado='APROBADA' WHERE id=? AND estado='PENDIENTE'",[id]);
  if(!r.affectedRows)return res.status(409).json({error:'La orden no existe o ya no está pendiente.'});
  res.json({id,estado:'APROBADA'});
-});
+
+}
+

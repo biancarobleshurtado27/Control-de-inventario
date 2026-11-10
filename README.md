@@ -114,3 +114,23 @@ El informe usa el enunciado Trabajo_Gestion_de_Inventarios_Quiz_2.pdf como fuent
 
 ## Identidad visual
 Materiales del Valle utiliza arena, marfil, terracota y oliva, encabezados serif y navegación numerada. Los estados incluyen texto, además de color. Los formularios se adaptan al ancho disponible y cada sección vuelve al inicio al abrirse.
+
+## Organización del backend
+```text
+src/
+  index.js                   Servidor, configuración y manejo de errores
+  db.js                      Pool de conexión MySQL
+  routes/
+    materiales.routes.js     Direcciones del catálogo
+    movimientos.routes.js    Direcciones de movimientos
+    ordenes.routes.js        Direcciones de órdenes y proveedores
+    consultas.routes.js      Direcciones de duplicados y trazabilidad
+    sistema.routes.js        Salud, stock, alertas y consultas generales
+  controllers/
+    materiales.controller.js
+    movimientos.controller.js
+    ordenes.controller.js
+    consultas.controller.js
+    sistema.controller.js
+```
+Las rutas asocian método y dirección con una función. Los controladores validan la solicitud, realizan las consultas y transacciones y devuelven la respuesta. db.js centraliza la conexión. Esta separación conserva las direcciones utilizadas por el frontend. No hay una capa de modelos ORM: el proyecto utiliza SQL con parámetros mediante mysql2.

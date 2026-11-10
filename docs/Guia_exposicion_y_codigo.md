@@ -1,4 +1,4 @@
-# Guía de exposición — 10 minutos
+﻿# Guía de exposición — 10 minutos
 
 Material de apoyo para exponer individualmente. Esta guía no es un archivo de diapositivas ni sustituye la presentación en clase.
 
@@ -24,7 +24,7 @@ Material de apoyo para exponer individualmente. Esta guía no es un archivo de d
 ## Preguntas para practicar
 
 ### ¿Dónde está el backend?
-En src/index.js se configura el servidor y sus rutas. db.js crea el pool de conexión; materiales.js, movimientos.js, ordenes.js y consultas.js implementan funciones de negocio. El frontend está en public/.
+En src/index.js se configura el servidor y sus rutas. db.js crea el pool de conexión; routes/ declara las rutas y controllers/ contiene las validaciones, consultas y respuestas. db.js centraliza la conexión. El frontend está en public/.
 
 ### ¿Cómo se calcula el stock?
 Se suman cantidades que llegan a una ubicación y se restan las que salen. La vista stock_actual obtiene ese saldo desde movimientos. Un traslado tiene origen y destino en el mismo registro.
@@ -65,3 +65,4 @@ Uso local sin autenticación; interfaz de OC de una línea; demanda y entrega gl
 3. Explicar cada tabla principal y una consulta de trazabilidad con tus palabras.
 4. Si no entiendes una función, revisarla antes de presentar y simplificar su explicación.
 5. La asistencia de IA está permitida por el enunciado; debes poder explicar lo entregado.
+

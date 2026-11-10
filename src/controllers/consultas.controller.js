@@ -1,7 +1,6 @@
-import { Router } from 'express';
-import { pool } from './db.js';
-export const consultasRouter = Router();
-consultasRouter.get('/ordenes/posibles-duplicados',async(req,res)=>{
+import { pool } from '../db.js';
+
+export async function detectarDuplicados(req,res) {
  const [reglas]=await pool.query("SELECT clave,valor FROM configuracion WHERE clave IN ('duplicados_dias','duplicados_tolerancia_porcentaje')");
  const config=Object.fromEntries(reglas.map(r=>[r.clave,Number(r.valor)]));
  const dias=config.duplicados_dias,tolerancia=config.duplicados_tolerancia_porcentaje;
@@ -19,8 +18,10 @@ consultasRouter.get('/ordenes/posibles-duplicados',async(req,res)=>{
  WHERE ABS(DATEDIFF(a.fecha,b.fecha))<=? AND ABS(a.cantidad-b.cantidad)/GREATEST(a.cantidad,b.cantidad)*100<=?
  ORDER BY a.id,b.id`,[dias,tolerancia]);
  res.json({regla:{dias,tolerancia_porcentaje:tolerancia},posibles_duplicados:rows});
-});
-consultasRouter.get('/materiales/:id/trazabilidad',async(req,res)=>{
+
+}
+
+export async function consultarTrazabilidad(req,res) {
  const id=Number(req.params.id);
  if(!Number.isSafeInteger(id)||id<1||id>2147483647) return res.status(400).json({error:'Identificador inválido.'});
  const [material]=await pool.execute('SELECT id,codigo,nombre,unidad FROM materiales WHERE id=?',[id]);
@@ -36,12 +37,15 @@ consultasRouter.get('/materiales/:id/trazabilidad',async(req,res)=>{
  LEFT JOIN orden_detalles detalle ON detalle.id=mv.orden_detalle_id LEFT JOIN ordenes oc ON oc.id=detalle.orden_id
  WHERE mv.material_id=? ORDER BY mv.fecha,mv.id`,[id]);
  res.json({material:material[0],movimientos});
-});
 
-consultasRouter.get('/usuarios',async(req,res)=>{
+}
+
+export async function listarUsuarios(req,res) {
  const [rows]=await pool.query('SELECT id,nombre FROM usuarios ORDER BY nombre');res.json(rows);
-});
-consultasRouter.get('/ordenes',async(req,res)=>{
- const [rows]=await pool.query(`SELECT d.id,o.id AS orden_id,o.numero,o.fecha,o.estado,p.nombre AS proveedor,d.material_id,m.nombre AS material,d.cantidad,d.precio_unitario,o.ubicacion_id,u.nombre AS ubicacion FROM ordenes o JOIN proveedores p ON p.id=o.proveedor_id JOIN orden_detalles d ON d.orden_id=o.id JOIN materiales m ON m.id=d.material_id JOIN ubicaciones u ON u.id=o.ubicacion_id ORDER BY o.fecha DESC,o.id DESC`);res.json(rows);
-});
 
+}
+
+export async function listarOrdenes(req,res) {
+ const [rows]=await pool.query(`SELECT d.id,o.id AS orden_id,o.numero,o.fecha,o.estado,p.nombre AS proveedor,d.material_id,m.nombre AS material,d.cantidad,d.precio_unitario,o.ubicacion_id,u.nombre AS ubicacion FROM ordenes o JOIN proveedores p ON p.id=o.proveedor_id JOIN orden_detalles d ON d.orden_id=o.id JOIN materiales m ON m.id=d.material_id JOIN ubicaciones u ON u.id=o.ubicacion_id ORDER BY o.fecha DESC,o.id DESC`);res.json(rows);
+
+}

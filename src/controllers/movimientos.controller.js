@@ -1,7 +1,6 @@
-import { Router } from 'express';
-import { pool } from './db.js';
-export const movimientosRouter = Router();
-movimientosRouter.post('/', async (req,res) => {
+import { pool } from '../db.js';
+
+export async function registrarMovimiento(req,res) {
  const d=req.body;
  const fail=message=>res.status(400).json({error:message});
  if(!d || typeof d!=='object' || Array.isArray(d)) return fail('Envía un objeto JSON.');
@@ -51,8 +50,11 @@ movimientosRouter.post('/', async (req,res) => {
   const [r]=await c.execute(`INSERT INTO movimientos(tipo,material_id,origen_id,destino_id,cantidad,usuario_id,documento,motivo,orden_detalle_id,lote) VALUES (?,?,?,?,?,?,?,?,?,?)`,[d.tipo,d.material_id,origen,destino,d.cantidad,d.usuario_id,d.documento.trim(),d.motivo.trim(),d.orden_detalle_id??null,d.lote.trim()]);
   await c.commit();res.status(201).json({id:r.insertId,mensaje:'Movimiento registrado.'});
  } catch(error){await c.rollback();throw error;} finally{c.release();}
-});
-movimientosRouter.get('/',async(req,res)=>{
+
+}
+
+export async function listarMovimientos(req,res) {
  const [rows]=await pool.query(`SELECT mv.*,m.nombre AS material,u.nombre AS usuario FROM movimientos mv JOIN materiales m ON m.id=mv.material_id JOIN usuarios u ON u.id=mv.usuario_id ORDER BY mv.fecha DESC,mv.id DESC LIMIT 200`);
  res.json(rows);
-});
+
+}
