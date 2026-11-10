@@ -3,7 +3,7 @@
 
 <b>Constructora Del Valle S.A.</b><br/>Opción 2: control de inventario para una empresa de construcción.
 
-<b>Autora:</b> pendiente de confirmar nombre completo.<br/><b>Modalidad:</b> individual.<br/><b>Fecha de preparación:</b> 10 de noviembre de 2026.
+<b>Autora:</b> Bianca Robles Hurtado.<br/><b>Modalidad:</b> individual.<br/><b>Fecha de preparación:</b> 10 de noviembre de 2026.
 
 <b>Tecnologías:</b> Node.js, Express, MySQL y una interfaz web con HTML, CSS y JavaScript.
 
@@ -11,7 +11,7 @@ Repositorio: https://github.com/biancarobleshurtado27/Control-de-inventario
 
 Este informe reúne el análisis de compras, los cálculos de inventario y la solución implementada. Los datos de negocio son ficticios y proceden del enunciado del quiz. Los supuestos adicionales se identifican en cada sección.
 
-<b>Estado:</b> borrador para revisión. Falta confirmar el nombre completo de la autora. El video y la presentación son entregables separados.
+<b>Estado:</b> borrador para revisión. Autora confirmada: Bianca Robles Hurtado. Pendiente de revisión final del contenido por la autora. El video permanece pospuesto.
 
 
 ## A1. Circuito de compra y aprobaciones
@@ -183,7 +183,7 @@ El sistema centraliza el inventario de Bodega Central y Obra Principal. La inter
 
 | Trazabilidad | Historial por material con lote, usuario, documento, ubicaciones y OC de procedencia. |
 
-<b>Organización:</b> backend/src/routes declara los endpoints y controllers procesa validaciones y consultas; db.js centraliza MySQL. frontend/src separa components, services, routes y pages. Los módulos de página usan las secciones HTML de index.html. La navegación utiliza hash, por ejemplo /#materiales. Un servidor Express sirve ambos lados y npm start se ejecuta desde la raíz.
+<b>Organización:</b> backend/src/routes declara los endpoints y controllers procesa consultas y transacciones; middlewares valida las solicitudes antes del controlador; db.js centraliza MySQL. frontend/src separa components, services, routes y pages. Los módulos de página usan las secciones HTML de index.html. La navegación utiliza hash, por ejemplo /#materiales. Un servidor Express sirve ambos lados y npm start se ejecuta desde la raíz.
 
 <b>Integridad:</b> las operaciones usan transacciones. El bloqueo del material serializa movimientos simultáneos; se rechazan saldos insuficientes por lote. Las recepciones requieren OC aprobada del mismo material y destino y no pueden superar lo pedido. El material y su política de stock se crean juntos.
 
@@ -215,9 +215,11 @@ El vínculo de salidas y traslados con una OC se reconstruye por material y lote
 
 | Interfaz | Material y ajuste creados desde navegador; OC creada/aprobada; historial y duplicados consultados. |
 
+| Middlewares | Cinco validadores: JSON, materiales, movimientos, órdenes e ID. 26 casos HTTP verificados. |
+
 | Seguridad básica | Archivos privados no accesibles por HTTP; JSON inválido 400 y mayor a 100 KB 413; cabeceras restrictivas. |
 
-<b>Ejecución:</b> instalar Node.js LTS y MySQL 8.0.16 o superior; ejecutar backend/db/schema.sql y backend/db/seed.sql una sola vez en base nueva; ejecutar npm ci desde la raíz; copiar backend/.env.example a backend/.env y completar credenciales locales; iniciar con npm start y abrir http://localhost:3000. npm test ejecuta cinco suites con datos temporales y limpieza. No publicar .env. El README conserva instrucciones y limitaciones.
+<b>Ejecución:</b> instalar Node.js LTS y MySQL 8.0.16 o superior; ejecutar backend/db/schema.sql y backend/db/seed.sql una sola vez en base nueva; ejecutar npm ci desde la raíz; copiar backend/.env.example a backend/.env y completar credenciales locales; iniciar con npm start y abrir http://localhost:3000. npm test ejecuta seis suites. La suite de middlewares incluye 26 casos HTTP sin usar MySQL; las demás usan datos temporales y limpieza cuando corresponde. No publicar .env. El README conserva instrucciones y limitaciones.
 
 <b>Revisión móvil:</b> se comprobó a 390 × 844 una columna de campos sin desbordamiento horizontal del documento. La captura móvil no estuvo disponible; queda pendiente una inspección visual completa en teléfono. El video permanece pospuesto. La autora indicó que no realizará presentación ni diapositivas. La revisión visual del nuevo diseño queda pendiente.
 

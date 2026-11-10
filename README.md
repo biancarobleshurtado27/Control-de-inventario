@@ -105,7 +105,7 @@ Se probaron formularios en navegador antes del rediseño. La distribución de ó
 - Una ubicación receptora nueva hereda inicialmente los límites de una política existente del material.
 
 ## Entregables y pendientes
-- docs/Informe_Gestion_Inventarios_Borrador.pdf: nueve páginas con A1-A5, circuito, modelo, solución, conclusiones y fuentes. Falta confirmar nombre completo y revisión de la autora.
+- docs/Informe_Gestion_Inventarios_Borrador.pdf: nueve páginas con A1-A5, circuito, modelo, solución, conclusiones y fuentes. Portada con Bianca Robles Hurtado; falta revisión final de la autora.
 - docs/Informe_contenido.md: texto base del informe.
 - docs/Guion_video_demo.md: guía del video. La grabación está pospuesta y todavía no existe un video final entregable.
 - docs/Guia_exposicion_y_codigo.md: material de estudio opcional. La usuaria indicó que no realizará diapositivas ni presentación.
@@ -169,4 +169,5 @@ Las solicitudes pasan por la ruta, los middlewares y finalmente el controlador. 
 Las entradas inválidas responden 400 o 415 y no llegan al controlador. Las comprobaciones dependientes de MySQL (existencia de registros, códigos únicos, saldo del lote, OC aprobada y recepción acumulada) permanecen en los controladores, dentro de las transacciones cuando corresponde. No se sustituye el control de concurrencia por una validación previa.
 
 backend/tests/middlewares.mjs verifica 26 casos HTTP sin modificar la base de datos y confirma que las solicitudes inválidas no ejecutan el controlador. npm test ejecuta esta suite y las cinco anteriores.
+
 

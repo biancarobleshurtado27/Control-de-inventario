@@ -24,8 +24,8 @@
 - [x] Configuración privada fuera de Git y README reproducible.
 - [x] Informe borrador de 9 páginas, actualizado a la arquitectura actual.
 
-## Pendientes
-- [ ] Confirmar nombre completo de la autora y finalizar portada.
+## Revisión final pendiente
+- [x] Portada con Bianca Robles Hurtado.
 - [ ] Revisión visual del nuevo estilo en escritorio.
 - [ ] Revisión visual completa en teléfono y formularios tras modularizar.
 - [ ] Revisión y aceptación final del informe por la autora.
@@ -44,4 +44,5 @@ Abrir el servidor y comprobar, sin escribir contraseñas en capturas:
 5. Selecciones de ubicación y material correctas después de actualizar.
 
 Las pruebas que escriben registros temporales deben ejecutarse solo en la base académica de desarrollo. No repetir seed.sql sobre una base con datos de trabajo.
+
 
