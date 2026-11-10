@@ -72,3 +72,6 @@ El borrador de nueve páginas está en docs/Informe_Gestion_Inventarios_Borrador
 - docs/Guion_video_demo.md: guion cronometrado para grabar un video de menos de cinco minutos. No es un video grabado.
 - docs/Guia_exposicion_y_codigo.md: estructura para diez minutos y preguntas para practicar la explicación. No es un archivo de diapositivas.
 - Video y exposición: pendientes de realizar. Antes de grabar, cerrar archivos .env y usar números de OC y lotes nuevos. Los movimientos de una demo real quedan en la base y no deben confundirse con el estado inicial del seed.
+
+## Identidad visual
+El frontend utiliza el estilo Materiales del Valle: base arena, superficies marfil, terracota para acciones y verde oliva para estados. Los encabezados serif y la numeración del menú distinguen la navegación. Los indicadores de reposición incluyen texto, además de color. Formularios y menú se adaptan a pantallas estrechas. Al cambiar de sección, la página vuelve al inicio.
