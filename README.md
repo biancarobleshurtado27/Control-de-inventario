@@ -1,77 +1,116 @@
-# Control de inventario — Quiz 2
+﻿# Materiales del Valle · Control de inventario
 
-## Preparación
-1. Instalar Node.js LTS y MySQL 8.0.16 o superior.
-2. Ejecutar db/schema.sql y luego db/seed.sql una sola vez sobre una base nueva.
-3. Ejecutar npm install.
-4. Copiar .env.example a .env y completar el usuario y contraseña de MySQL localmente.
-5. Ejecutar npm start.
-6. Abrir http://localhost:3000/api/salud. Debe responder estado ok y baseDeDatos conectada.
+Prototipo académico para Constructora Del Valle S.A., opción 2 del Quiz de Gestión de Inventarios. Incluye una interfaz web y una API REST con Node.js, Express y MySQL.
 
-## Consultas disponibles
-- GET /api/materiales: catálogo y cálculos de seguridad y reorden.
-- GET /api/ubicaciones: bodegas y obras.
-- GET /api/stock: saldos por material y ubicación con política configurada.
-- GET /api/alertas/reorden: materiales por debajo del PR.
+## Requisitos
+- Node.js LTS compatible con Express 5 (Node 20 o superior).
+- MySQL 8.0.16 o superior, iniciado y accesible localmente.
+- npm y una cuenta MySQL con acceso a la base del proyecto.
 
-Con los datos iniciales, stock devuelve 190, 850, 2800 y 14. Alertas devuelve block y arena.
-La API y la interfaz se escuchan únicamente en la computadora local. Incluye escritura de materiales, movimientos y órdenes; no incluye autenticación.
-No publicar .env ni credenciales. Los datos son ficticios, tomados del enunciado del quiz; mínimos y máximos son supuestos documentados en seed.sql.
+## Instalación y ejecución
+1. En una base nueva, ejecutar `db/schema.sql` y después `db/seed.sql`, una sola vez. No repetirlos sobre datos de trabajo.
+2. Desde la raíz del proyecto, ejecutar `npm ci`.
+3. Copiar `.env.example` a `.env` y completar los datos de conexión localmente. No publicar contraseñas.
+4. Ejecutar `npm start`. Para desarrollo con reinicio automático: `npm run dev`.
+5. Abrir la dirección indicada en la terminal. El valor predeterminado es `http://localhost:3000`; si `PORT=3002`, abrir `http://localhost:3002`.
+6. Abrir `/api/salud`: debe responder `estado: ok` y `baseDeDatos: conectada`.
 
-## Registrar material
-POST /api/materiales recibe codigo, nombre, categoria, subcategoria, unidad, demanda_promedio, demanda_maxima, tiempo_entrega, ubicacion_id, stock_minimo y stock_maximo. Devuelve 201; datos inválidos 400; código repetido 409. El stock inicial es cero y solo cambia mediante movimientos. El material y su política se crean juntos mediante una transacción.
+Frontend y backend comparten el mismo servidor: no hay que iniciar dos proyectos. `public/` contiene la interfaz y `src/` contiene la API. El servidor escucha solamente en la computadora local.
 
-## Movimientos
-GET /api/movimientos lista los últimos 200 registros. POST /api/movimientos recibe tipo, material_id, usuario_id, cantidad, documento, motivo, lote, origen_id y destino_id. ENTRADA requiere orden_detalle_id aprobado y destino coincidente; SALIDA requiere origen; TRASLADO requiere origen y destino distintos; AJUSTE requiere solo uno de ellos. El lote se conserva al salir o trasladar. No se permiten saldos negativos por lote ni recepciones por encima de la cantidad de la OC. Los movimientos se serializan por material dentro de transacciones. Al recibir un traslado, la ubicación hereda inicialmente los límites de stock del material, editables en futuras mejoras.
+## Configuración
+| Variable | Uso |
+|---|---|
+| PORT | Puerto web, predeterminado 3000 |
+| DB_HOST | Servidor MySQL, predeterminado localhost |
+| DB_PORT | Puerto MySQL, predeterminado 3306 |
+| DB_USER | Usuario local MySQL |
+| DB_PASSWORD | Contraseña local MySQL |
+| DB_NAME | Base de datos, inventario_quiz |
 
-## Duplicados y trazabilidad
-- GET /api/ordenes/posibles-duplicados: compara órdenes no canceladas del mismo proveedor y material. Acumula las líneas del mismo material por OC, compara pares una sola vez y aplica los parámetros de configuracion: hasta 3 días y diferencia de hasta 5 % respecto de la cantidad mayor. Los resultados son sospechas para revisión, no duplicados confirmados.
-- GET /api/materiales/:id/trazabilidad: historial con usuario, origen, destino, documento, lote y OC de procedencia. Los saldos iniciales no tienen OC: se identifican por su documento de ajuste.
-- Los lotes conservan su vínculo con la OC al trasladarse o salir.
+`.env` y sus copias están excluidos de Git. Solo `.env.example` contiene un ejemplo publicable sin contraseña.
 
-## Pruebas funcionales
-Con .env configurado y la base inicial cargada:
-- node tests/movimientos.mjs
-- node tests/recepcion-consultas.mjs
-Estas pruebas crean datos temporales y los eliminan al terminar. La segunda verifica los pares OC-1041/OC-1042 y OC-1050/OC-1053 de los datos semilla, recepción parcial y completa, rechazo de exceso y trazabilidad después de un traslado.
+## Funciones
+- Dashboard de existencias y alertas por ubicación, con búsqueda de materiales.
+- Registro de materiales, demanda, tiempo de entrega y política de mínimos/máximos.
+- Entradas por compra, salidas, traslados y ajustes con lote, usuario y documento.
+- Órdenes de compra pendientes y aprobación manual antes de recibirlas.
+- Detección configurable de posibles compras duplicadas.
+- Historial por material y trazabilidad de la OC de origen mediante el lote.
 
-## Interfaz web
-Al iniciar el servidor, abrir http://localhost:3000/. Incluye resumen de existencias, alertas, búsqueda, catálogo y registro de materiales, registro de movimientos, posibles duplicados y trazabilidad. La interfaz usa la misma API y no requiere instalación adicional. Para ENTRADA se selecciona una línea de OC existente aprobada; las nuevas OC se crean desde Órdenes de compra. La selección de usuario identifica al responsable, pero todavía no constituye autenticación.
-Prueba de entrega de archivos y consultas: node tests/frontend-smoke.mjs. La revisión inicial en Chrome está documentada al final de este archivo; queda pendiente la vista móvil.
+## Reglas de negocio
+**Stock:** entradas recibidas menos salidas enviadas, incluyendo traslados y ajustes. No se edita directamente. Un traslado afecta ambas ubicaciones en una sola operación.
 
-## Revisión de interfaz en navegador
-Revisado en Chrome, ventana de aproximadamente 860 px de ancho: dashboard, catálogo, formulario de materiales, formulario de movimientos, trazabilidad y posibles duplicados. Las tablas anchas disponen de desplazamiento horizontal.
-Se creó un material temporal desde el formulario y se comprobó el mensaje de guardado y su aparición en el catálogo. Se comprobó el rechazo de un ajuste sin ubicación y luego el guardado de un ajuste de cinco unidades con destino válido. Se consultó el historial de cemento y se visualizaron los dos pares esperados de compras sospechosas. Los datos temporales se eliminaron al finalizar.
-Pendiente ampliar las pruebas manuales a todos los tipos de movimiento y a pantalla móvil.
+**Stock de seguridad:** (demanda máxima - demanda promedio) × tiempo de entrega.
 
-## Órdenes de compra
-La pantalla Órdenes de compra permite crear una OC de una línea y aprobar órdenes pendientes. La API POST /api/ordenes también admite hasta 100 materiales distintos en detalles. GET /api/proveedores alimenta el selector. POST /api/ordenes/:id/aprobar cambia únicamente órdenes pendientes a aprobadas. Esta aprobación es manual y no implementa roles ni la matriz monetaria (extra opcional). La recepción exige estado aprobado. El estado no cambia automáticamente a RECIBIDA; el límite acumulado de recepción impide recibir de más.
-Prueba del flujo completo: node tests/ordenes.mjs (datos temporales con limpieza automática).
+**Punto de reorden:** demanda promedio × tiempo de entrega + stock de seguridad. La alerta aparece cuando el stock es estrictamente menor al PR. Demanda y entrega son parámetros globales del material; los límites mínimo y máximo son por ubicación.
 
+**Duplicados:** mismo proveedor y material, hasta tres días de diferencia y cantidades cuya diferencia sea de hasta 5 % respecto de la mayor. Los parámetros están en `configuracion`. Se acumulan líneas por material dentro de cada OC, se excluyen órdenes canceladas y cada par se compara una sola vez. Es una sospecha para revisión, no una pérdida confirmada.
 
-## Verificación de pantalla de órdenes
-Revisada en Chrome: formulario de número, fecha, proveedor, destino, material, cantidad y precio; listado de las siete OC semilla; selector de pendientes y aprobación deshabilitada cuando no hay pendientes. La creación y recepción completas se verifican mediante tests/ordenes.mjs. La creación y aprobación desde navegador y la distribución móvil se verificaron posteriormente; ver Validación adicional de interfaz.
-Las copias de archivos cuyo nombre comienza con .env también están excluidas de Git. Solo .env.example se publica y no contiene contraseñas.
+**Recepciones:** requieren OC aprobada, material y destino coincidentes. La suma recibida no puede superar la cantidad pedida. Los saldos iniciales se registran como ajustes, no como compras inventadas.
 
-## Validación adicional de interfaz
-Se creó UI-OC-1109 con dos unidades de cemento desde el formulario y se aprobó desde el selector. Ambos mensajes de éxito se verificaron en pantalla y la OC temporal se eliminó después, sin afectar órdenes originales.
-Se comprobó la distribución de Órdenes en un viewport de 390 × 844: formulario de una columna, campos de unos 298 px dentro del ancho visible y navegación horizontal. No se detectó desbordamiento horizontal del documento. La captura de imagen móvil no estuvo disponible; esta comprobación fue de dimensiones y estilos del navegador, no una inspección visual completa en un teléfono. Se restauró el viewport normal.
+**Concurrencia y trazabilidad:** las transacciones bloquean el material antes de registrar movimientos. Se verifica saldo por lote y ubicación. Salidas y traslados conservan el lote. No hay funciones para borrar movimientos históricos; las correcciones operativas se registran mediante movimientos compensatorios documentados.
 
+## API
+| Método | Ruta | Función |
+|---|---|---|
+| GET | /api/salud | Comprobar MySQL |
+| GET / POST | /api/materiales | Consultar o registrar materiales |
+| GET | /api/ubicaciones | Ubicaciones disponibles |
+| GET | /api/usuarios | Responsables disponibles |
+| GET | /api/proveedores | Proveedores disponibles |
+| GET | /api/stock | Existencias por material y ubicación con política |
+| GET | /api/alertas/reorden | Alertas calculadas |
+| GET / POST | /api/movimientos | Últimos 200 movimientos o nuevo registro |
+| GET / POST | /api/ordenes | Líneas de OC o creación de una OC |
+| POST | /api/ordenes/:id/aprobar | Aprobar una orden pendiente |
+| GET | /api/ordenes/posibles-duplicados | Pares sospechosos y regla aplicada |
+| GET | /api/materiales/:id/trazabilidad | Historial y OC de origen |
 
-## Revisión integral y seguridad básica
-Las cinco suites funcionales fueron ejecutadas: entrega del frontend, movimientos y concurrencia, recepción y trazabilidad, órdenes y seguridad básica. Para repetirlas: npm test (requiere MySQL y .env configurados). Los datos temporales se eliminan al finalizar.
-Se verificó que .env, .git/config, package.json y los scripts SQL no se publican por HTTP. Se añadieron cabeceras para limitar recursos al mismo origen, impedir inclusión en marcos y evitar detección de tipos MIME. JSON mal formado responde 400 y solicitudes mayores a 100 KB responden 413.
-En Git solo se publica .env.example; .env y sus copias están ignorados. Las consultas que reciben datos usan parámetros y la interfaz inserta los textos con textContent.
-Alcance: prototipo académico local, sin autenticación ni autorización por roles. Elegir un usuario en el formulario no verifica su identidad. No se considera listo para exposición pública sin implementar esos controles. La matriz monetaria de aprobación es un extra no implementado.
+POST /api/materiales recibe codigo, nombre, categoria, subcategoria, unidad, demanda_promedio, demanda_maxima, tiempo_entrega, ubicacion_id, stock_minimo y stock_maximo. El material nuevo inicia con cero existencias.
 
-## Informe
-El borrador de nueve páginas está en docs/Informe_Gestion_Inventarios_Borrador.pdf. Incluye A1-A5, circuito de compra, modelo entidad-relación, descripción del sistema, pruebas, conclusiones y fuentes. Falta confirmar el nombre completo de la autora. docs/Informe_contenido.md conserva el texto base; el PDF incluye además los diagramas gráficos.
+POST /api/movimientos recibe tipo, material_id, usuario_id, cantidad, documento, motivo, lote y las ubicaciones correspondientes. ENTRADA requiere destino y orden_detalle_id; SALIDA requiere origen; TRASLADO requiere ambos y deben ser distintos; AJUSTE requiere solo origen para reducir o solo destino para aumentar.
 
-## Preparar la entrega
-- docs/Informe_Gestion_Inventarios_Borrador.pdf: informe de nueve páginas; pendiente nombre completo y revisión de autora.
-- docs/Guion_video_demo.md: guion cronometrado para grabar un video de menos de cinco minutos. No es un video grabado.
-- docs/Guia_exposicion_y_codigo.md: estructura para diez minutos y preguntas para practicar la explicación. No es un archivo de diapositivas.
-- Video y exposición: pendientes de realizar. Antes de grabar, cerrar archivos .env y usar números de OC y lotes nuevos. Los movimientos de una demo real quedan en la base y no deben confundirse con el estado inicial del seed.
+POST /api/ordenes recibe numero, fecha (AAAA-MM-DD), proveedor_id, ubicacion_id y detalles con material_id, cantidad y precio_unitario. La API admite hasta 100 materiales distintos. La interfaz captura una línea por OC.
+
+Respuestas comunes: 201 creación correcta, 400 entrada inválida, 404 recurso no encontrado, 409 conflicto y 413 solicitud mayor a 100 KB. Los errores internos no devuelven credenciales.
+
+## Datos semilla y demostración
+| Material | Stock inicial | Seguridad | PR |
+|---|---:|---:|---:|
+| Cemento | 190 | 45 | 165 |
+| Varilla | 850 | 200 | 800 |
+| Block | 2800 | 1200 | 3600 |
+| Arena | 14 | 8 | 20 |
+
+Block y arena generan las dos alertas iniciales. Las OC de A3 se cargan aprobadas para demostrar duplicados, sin sumarlas a los saldos iniciales de A5. Se esperan OC-1041/OC-1042 y OC-1050/OC-1053. Mínimos y máximos son supuestos del prototipo documentados en seed.sql.
+
+Para una demo: mostrar alertas, crear una OC con número único, aprobarla, registrar su entrada con un lote nuevo y consultar trazabilidad. Los registros de una demo real quedan en la base. No volver a cargar seed.sql para restablecer datos.
+
+## Pruebas
+- `npm run check`: revisar sintaxis de backend y frontend.
+- `npm test`: ejecutar cinco suites de pruebas funcionales.
+- Requieren MySQL, .env y los datos semilla. Crearán datos temporales identificados como pruebas y los eliminarán al finalizar. Ejecutarlas únicamente en la base académica de desarrollo.
+
+Cobertura: entrega de archivos web, consultas iniciales, saldos por lote, salidas simultáneas, traslados, recepciones parciales y completas, rechazo de excesos, creación/aprobación de OC, duplicados, trazabilidad, archivos privados y errores JSON.
+
+Se probaron formularios en navegador antes del rediseño. La distribución de órdenes se verificó a 390 × 844, pero falta una revisión visual completa en teléfono. El nuevo estilo tierra aún requiere revisión visual en navegador.
+
+## Seguridad y límites
+- Consultas con parámetros y validaciones de entrada.
+- Solo public/ se sirve por HTTP. No se sirven .env, scripts SQL ni .git.
+- Cabeceras para recursos del mismo origen, impedir marcos y evitar detección de tipos MIME.
+- Prototipo local sin autenticación ni permisos por rol. Seleccionar usuario no verifica identidad.
+- La aprobación manual no aplica la matriz monetaria A1, que es un extra opcional.
+- El estado de una OC no cambia automáticamente a RECIBIDA; el límite acumulado impide recibir de más.
+- Una ubicación receptora nueva hereda inicialmente los límites de una política existente del material.
+
+## Entregables y pendientes
+- docs/Informe_Gestion_Inventarios_Borrador.pdf: nueve páginas con A1-A5, circuito, modelo, solución, conclusiones y fuentes. Falta confirmar nombre completo y revisión de la autora.
+- docs/Informe_contenido.md: texto base del informe.
+- docs/Guion_video_demo.md: guía del video. La grabación está pospuesta y todavía no existe un video final entregable.
+- docs/Guia_exposicion_y_codigo.md: material de estudio opcional. La usuaria indicó que no realizará diapositivas ni presentación.
+
+El informe usa el enunciado Trabajo_Gestion_de_Inventarios_Quiz_2.pdf como fuente de datos ficticios. No se extraen precios de sitios externos. El código se desarrolló con apoyo de IA y utiliza Express, mysql2 y dotenv. La autora debe revisar y comprender lo entregado.
 
 ## Identidad visual
-El frontend utiliza el estilo Materiales del Valle: base arena, superficies marfil, terracota para acciones y verde oliva para estados. Los encabezados serif y la numeración del menú distinguen la navegación. Los indicadores de reposición incluyen texto, además de color. Formularios y menú se adaptan a pantallas estrechas. Al cambiar de sección, la página vuelve al inicio.
+Materiales del Valle utiliza arena, marfil, terracota y oliva, encabezados serif y navegación numerada. Los estados incluyen texto, además de color. Los formularios se adaptan al ancho disponible y cada sección vuelve al inicio al abrirse.
